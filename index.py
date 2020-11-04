@@ -6,6 +6,7 @@ import os
 from dash.dependencies import Input, Output, State
 
 from reccServer import *
+from historyServer import *
 from app import app
 from layouts import layoutrecc
 
@@ -20,12 +21,13 @@ for f in os.listdir(image_directory):
     list_of_images.append(f)
 
 print('loaded images {}'.format(list_of_images[0:5]))
- #                [os.path.basename(x) for x in glob.glob('{}*.png'.format(image_directory))];
-#[Image.open(item) for i in [glob.glob('your/path/*.%s' % ext) for ext in ["jpg","gif","png","tga"]] for item in i]
+
 static_image_route = '/static/'
 data_path = "produkty.csv"
 
 load_reccs(data_path)
+load_histories()
+
 
 @app.callback(
     Output('infoLabel', 'children'),
@@ -57,34 +59,52 @@ def get_next_product_click(clicks1, clicks2, clicks3, currentRecommendedIDs):
 
 @app.callback(
     Output('recommendationIDs', 'children'),
+    Output('productDescription', 'children'),
     Output('currentProductImg', 'src'),
     Output('reccImg1', 'src'),
     Output('reccImg2', 'src'),
     Output('reccImg3', 'src'),
-    [Input('currentProductIDNumber', 'children')
-    ]
+    Output('currentUserSessionHistory', 'children'),
+    [Input('currentProductIDNumber', 'children'),
+     Input('loginButton', 'n_clicks'),
+    ],
+    [ State('usernameInput', 'value'),
+      State('currentUserSessionHistory', 'children')]
 )
-def load_next_product(selectedProductID):
-    # dostan doporuceni
+def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHistory):
+
+    changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
+
+    # dostan doporuceni k vybranemu produktu, zanes ho do historie a prehazej obrazky
     newRecommendedIDs = get_recc(selectedProductID)
+    newDescription = get_name(selectedProductID)
     # zmen podle toho obrazky
     currentImgPath = static_image_route + str(selectedProductID)
     reccImg1Path = static_image_route + str(newRecommendedIDs[0])
     reccImg2Path = static_image_route + str(newRecommendedIDs[1])
     reccImg3Path = static_image_route + str(newRecommendedIDs[2])
 
-    return newRecommendedIDs, currentImgPath, reccImg1Path, reccImg2Path, reccImg3Path
+    if 'currentProductIDNumber' in changed_id:
+        currentSessionHistory.append(str(selectedProductID))
+        # uloz historii
+        save_history(oldUsername, currentSessionHistory)
+    elif 'loginButton' in changed_id:
+        # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
+        currentSessionHistory = []
+
+    return newRecommendedIDs, newDescription, currentImgPath, reccImg1Path, reccImg2Path, reccImg3Path, currentSessionHistory
 
 
 @app.server.route('{}<image_path>'.format(static_image_route))
 def serve_image(image_path):
+    # nacteni obrazku z disku
     image_name = '{}.jpg'.format(image_path)
     print('looking up image {}'.format(image_name))
     if image_name not in list_of_images:
         raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
     return flask.send_from_directory(image_directory, image_name)
 
-
+# nastav rozvrzeni stranky a pridej CSS
 app.layout = layoutrecc
 
 if __name__ == '__main__':

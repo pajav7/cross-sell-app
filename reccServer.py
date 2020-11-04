@@ -3,7 +3,7 @@ import pandas as pd
 
 #data_path = "produkty.csv"
 
-data = []
+data = pd.DataFrame()
 
 def load_reccs(path):
     global data
@@ -18,5 +18,12 @@ def get_recc(product_ID):
     recc = data.loc[data["ID"]==int(product_ID)].stack().tolist()[1:4]
     print("recommendation: {}".format( recc))
     return recc
+
+def get_name(product_ID):
+    # vytahni jmeno prave zobrazeneho produktu
+    global data
+    name = data.loc[data["ID"]==int(product_ID)]['Název']
+    print("product: {}, name: {}".format(product_ID, name))
+    return name
 
 
