@@ -5,8 +5,4 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
-  <component name="PackageRequirementsSettings">
-    <option name="requirementsPath" value="C:\Users\Hypernek\Documents\GitHub\cross-sell-app\requirements.txt" />
-    <option name="versionSpecifier" value="Strong equality (==x.y.z)" />
-  </component>
 </module>
