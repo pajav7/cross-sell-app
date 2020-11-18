@@ -1,2 +1,3 @@
-
+/.idea
+/webapp/.idea/
 *.pyc
