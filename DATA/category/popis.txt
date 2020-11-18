@@ -1,0 +1,6 @@
+EXCEL a CSV soubor 
+
+CSV - primarně pro načtení pro python pandas
+EXCEL - (.xlsx) pro lepší náhled dat. Obsahuje grafík
+
+Základ pro: content based filtering
