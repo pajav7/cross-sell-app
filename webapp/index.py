@@ -17,12 +17,14 @@ from layouts import layoutrecc
     Input('reccImg2', 'n_clicks'),
     Input('reccImg3', 'n_clicks'),
     Input('reccImg4', 'n_clicks'),
-    Input('reccImg5', 'n_clicks')
+    Input('reccImg5', 'n_clicks'),
+    Input('IDSubmitButton', 'n_clicks')
     ],
-    [State('recommendationIDs', 'children') # jenom precti, nereaguj na jejich zmenu
+    [State('recommendationIDs', 'children'),
+     State('productIDInput', 'value')# jenom precti, nereaguj na jejich zmenu
     ]
 )
-def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, currentRecommendedIDs):
+def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitClicks, currentRecommendedIDs, productIDfromInput):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'reccImg1' in changed_id:
@@ -40,6 +42,9 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, currentR
     elif 'reccImg5' in changed_id:
         newproductID = currentRecommendedIDs[4]
         msg = 'Image 5 was most recently clicked, ID: {}'.format(newproductID)
+    elif 'IDSubmitButton' in changed_id:
+        newproductID = productIDfromInput
+        msg = 'Submit button clicked. Custom product ID: {}'.format(newproductID)
     else:
         msg = 'None of the images have been clicked yet'
         newproductID = '848128007'

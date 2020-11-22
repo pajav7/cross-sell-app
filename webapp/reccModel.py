@@ -42,12 +42,12 @@ def get_recc(productIDS):
 def get_product_description(productID):
     # vytahni z tabulky popis prave zobrazeneho produktu
     global item_names
-    # hledej v tom jako ve stringu (mozna bude pomale)
+    # hledej v tom jako ve stringu (mozna bude pomale) @TODO: zrychlit - najit vic popisu jednim dotazem?
     # jediny zpusob jak najit cislo produktu v arrayich ktere jsou v druhem sloupci tabulky item_list.csv
     # samotny vnitrek vraci boolean masku, tu aplikujeme na item_names
     # a vyplivne to ten radek ve kterem se ID nachazi.
     # pak jeste indexujeme 0,0 - chceme jenom nazev
-    product_description = item_names[item_names['list_id'].str.contains(productID)].iloc[0, 0]
+    product_description = item_names[item_names['list_id'].str.contains(productID)].iloc[0, 0] # zde je bottleneck
     # print("description of product {} : \n {}".format(productID, product_description))
     return product_description
 
