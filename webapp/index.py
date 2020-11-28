@@ -5,41 +5,26 @@ import flask
 import os
 from dash.dependencies import Input, Output, State
 
-from reccServer import *
+from reccModel import *
 from historyServer import *
 from app import app
 from layouts import layoutrecc
-
-image_directory = 'productImages'
-valid_formats = [".jpg"]
-# sestav seznam obrazku
-list_of_images = []
-for f in os.listdir(image_directory):
-    ext = os.path.splitext(f)[1]
-    if ext.lower() not in valid_formats:
-        continue
-    list_of_images.append(f)
-
-print('loaded images {}'.format(list_of_images[0:5]))
-
-static_image_route = '/static/'
-data_path = "produkty.csv"
-
-load_reccs(data_path)
-load_histories()
-
 
 @app.callback(
     Output('infoLabel', 'children'),
     Output('currentProductIDNumber', 'children'),
     [Input('reccImg1', 'n_clicks'),
     Input('reccImg2', 'n_clicks'),
-    Input('reccImg3', 'n_clicks')
+    Input('reccImg3', 'n_clicks'),
+    Input('reccImg4', 'n_clicks'),
+    Input('reccImg5', 'n_clicks'),
+    Input('IDSubmitButton', 'n_clicks')
     ],
-    [State('recommendationIDs', 'children') # jenom precti, nereaguj na jejich zmenu
+    [State('recommendationIDs', 'children'),
+     State('productIDInput', 'value')# jenom precti, nereaguj na jejich zmenu
     ]
 )
-def get_next_product_click(clicks1, clicks2, clicks3, currentRecommendedIDs):
+def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitClicks, currentRecommendedIDs, productIDfromInput):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'reccImg1' in changed_id:
@@ -51,20 +36,40 @@ def get_next_product_click(clicks1, clicks2, clicks3, currentRecommendedIDs):
     elif 'reccImg3' in changed_id:
         newproductID = currentRecommendedIDs[2]
         msg = 'Image 3 was most recently clicked, ID: {}'.format(newproductID)
+    elif 'reccImg4' in changed_id:
+        newproductID = currentRecommendedIDs[3]
+        msg = 'Image 4 was most recently clicked, ID: {}'.format(newproductID)
+    elif 'reccImg5' in changed_id:
+        newproductID = currentRecommendedIDs[4]
+        msg = 'Image 5 was most recently clicked, ID: {}'.format(newproductID)
+    elif 'IDSubmitButton' in changed_id:
+        newproductID = productIDfromInput
+        msg = 'Submit button clicked. Custom product ID: {}'.format(newproductID)
     else:
         msg = 'None of the images have been clicked yet'
-        newproductID = '40001'
+        newproductID = '848128007'
     return msg, newproductID
 
 
 @app.callback(
     Output('recommendationIDs', 'children'),
     Output('productDescription', 'children'),
-    Output('currentProductImg', 'src'),
-    Output('reccImg1', 'src'),
-    Output('reccImg2', 'src'),
-    Output('reccImg3', 'src'),
     Output('currentUserSessionHistory', 'children'),
+    Output('reccLink1', 'href'),
+    Output('reccLink2', 'href'),
+    Output('reccLink3', 'href'),
+    Output('reccLink4', 'href'),
+    Output('reccLink5', 'href'),
+    Output('reccLink1', 'children'),
+    Output('reccLink2', 'children'),
+    Output('reccLink3', 'children'),
+    Output('reccLink4', 'children'),
+    Output('reccLink5', 'children'),
+    Output('reccDesc1', 'children'),
+    Output('reccDesc2', 'children'),
+    Output('reccDesc3', 'children'),
+    Output('reccDesc4', 'children'),
+    Output('reccDesc5', 'children'),
     [Input('currentProductIDNumber', 'children'),
      Input('loginButton', 'n_clicks'),
     ],
@@ -72,17 +77,19 @@ def get_next_product_click(clicks1, clicks2, clicks3, currentRecommendedIDs):
       State('currentUserSessionHistory', 'children')]
 )
 def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHistory):
-
+    # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # dostan doporuceni k vybranemu produktu, zanes ho do historie a prehazej obrazky
     newRecommendedIDs = get_recc(selectedProductID)
-    newDescription = get_name(selectedProductID)
-    # zmen podle toho obrazky
-    currentImgPath = static_image_route + str(selectedProductID)
-    reccImg1Path = static_image_route + str(newRecommendedIDs[0])
-    reccImg2Path = static_image_route + str(newRecommendedIDs[1])
-    reccImg3Path = static_image_route + str(newRecommendedIDs[2])
+    newDescription = get_product_description(selectedProductID)
+
+    # priprav seznamy
+    reccURLs = []
+    reccDescriptions = []
+    for i in range(5):
+        reccURLs.append("http://mall.cz/id/{}".format(newRecommendedIDs[i]))
+        reccDescriptions.append(get_product_description(newRecommendedIDs[i]))
 
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
@@ -92,17 +99,15 @@ def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHis
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
         currentSessionHistory = []
 
-    return newRecommendedIDs, newDescription, currentImgPath, reccImg1Path, reccImg2Path, reccImg3Path, currentSessionHistory
+    return newRecommendedIDs, newDescription, currentSessionHistory, \
+        reccURLs[0], reccURLs[1], reccURLs[2], reccURLs[3], reccURLs[4], \
+        newRecommendedIDs[0], newRecommendedIDs[1], newRecommendedIDs[2], newRecommendedIDs[3], newRecommendedIDs[4], \
+        reccDescriptions[0], reccDescriptions[1], reccDescriptions[2], reccDescriptions[3], reccDescriptions[4]
 
-
-@app.server.route('{}<image_path>'.format(static_image_route))
-def serve_image(image_path):
-    # nacteni obrazku z disku
-    image_name = '{}.jpg'.format(image_path)
-    print('looking up image {}'.format(image_name))
-    if image_name not in list_of_images:
-        raise Exception('"{}" is excluded from the allowed static files'.format(image_path))
-    return flask.send_from_directory(image_directory, image_name)
+# nacti vsechno
+load_model()
+load_names()
+load_histories()
 
 # nastav rozvrzeni stranky a pridej CSS
 app.layout = layoutrecc
