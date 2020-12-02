@@ -76,7 +76,7 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
     [ State('usernameInput', 'value'),
       State('currentUserSessionHistory', 'children')]
 )
-def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHistory):
+def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHistory):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
@@ -93,11 +93,11 @@ def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHis
 
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
-        # uloz historii
-        save_history(oldUsername, currentSessionHistory)
+        # uloz historii 
+        save_history(inputUsername, currentSessionHistory)
     elif 'loginButton' in changed_id:
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
-        currentSessionHistory = []
+        currentSessionHistory = get_user_history(inputUsername)
 
     return newRecommendedIDs, newDescription, currentSessionHistory, \
         reccURLs[0], reccURLs[1], reccURLs[2], reccURLs[3], reccURLs[4], \
@@ -112,5 +112,6 @@ load_histories()
 # nastav rozvrzeni stranky a pridej CSS
 app.layout = layoutrecc
 
+# spust webovku
 if __name__ == '__main__':
     app.run_server(debug=True)
