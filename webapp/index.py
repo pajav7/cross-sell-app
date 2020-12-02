@@ -80,7 +80,7 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-    # dostan doporuceni k vybranemu produktu, zanes ho do historie a prehazej obrazky
+    # dostan doporuceni k vybranemu produktu
     newRecommendedIDs = get_recc(selectedProductID)
     newDescription = get_product_description(selectedProductID)
 
@@ -93,7 +93,7 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
 
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
-        # uloz historii 
+        # uloz historii
         save_history(inputUsername, currentSessionHistory)
     elif 'loginButton' in changed_id:
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
@@ -115,3 +115,4 @@ app.layout = layoutrecc
 # spust webovku
 if __name__ == '__main__':
     app.run_server(debug=True)
+

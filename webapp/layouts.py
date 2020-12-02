@@ -14,7 +14,7 @@ layoutrecc = html.Div([
     html.Div(id='currentUserSessionHistory', children=[], style={'display': 'none'}),
     html.Br(),
     html.Div(id='currentProductIDNumber', children='0'),
-    html.Div(id='recommendationIDs', children=["1709503", "2401410", "848128007"],  style={'display': 'none'}),
+    html.Div(id='recommendationIDs', children=[],  style={'display': 'none'}),
     html.Img(id='currentProductImg', alt='obrazek vybraneho produktu', style={'height':'500px', 'width':'500px'}),
     html.Div(id='productDescription', children='aaaa'),
     html.Br(),

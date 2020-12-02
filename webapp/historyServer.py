@@ -15,14 +15,17 @@ def load_histories(path = historypath):
         history = pd.DataFrame()
     print(history.head(5))
 
+
 def get_user_history(username):
     global history
     try:
+        # pokud user existuje, nacti jeho sloupec
         userhistory = history[username]
         userhistory = userhistory.dropna()
         return userhistory
     except KeyError:
         return []
+
 
 def save_history(username, historyList):
     # ulozi historii do souboru

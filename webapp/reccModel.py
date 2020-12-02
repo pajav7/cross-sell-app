@@ -9,7 +9,7 @@ item_names = pd.DataFrame()
 def load_model():
     # priprav predtrenovany model
     global pretrained_model
-    pretrained_model = Word2Vec.load('../w2v.model')
+    pretrained_model = Word2Vec.load('../w2vAllMin5.model')
     print("recommendation model loaded")
 
 
@@ -26,7 +26,7 @@ def get_recc(productIDS):
     # doporuc neco k tomuto produktu (nebo seznamu produktu)
     global pretrained_model
     if isinstance(productIDS, list):
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS)
+        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS) #topn = 5?
     else:
         reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS])
 
@@ -49,5 +49,4 @@ def get_product_description(productID):
     return product_description
 
 
-def get_most_popular():
-    global pretrained_model
+
