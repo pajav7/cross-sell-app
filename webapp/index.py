@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output, State
 from reccModel import *
 from historyServer import *
 from app import app
-from layouts import layoutrecc
+from layouts import *
 
 @app.callback(
     Output('infoLabel', 'children'),
@@ -104,13 +104,24 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
         newRecommendedIDs[0], newRecommendedIDs[1], newRecommendedIDs[2], newRecommendedIDs[3], newRecommendedIDs[4], \
         reccDescriptions[0], reccDescriptions[1], reccDescriptions[2], reccDescriptions[3], reccDescriptions[4]
 
+# prevzato z https://dash.plotly.com/urls
+@app.callback(Output('pageContent', 'children'),
+              Input('url', 'pathname'))
+def display_page(pathname):
+    if pathname == '/':
+         return layoutcategories
+    elif pathname == '/products':
+         return layoutrecc
+    else:
+        return '404'
+
 # nacti vsechno
 load_model()
 load_names()
 load_histories()
 
 # nastav rozvrzeni stranky a pridej CSS
-app.layout = layoutrecc
+app.layout = layoutvse
 
 # spust webovku
 if __name__ == '__main__':

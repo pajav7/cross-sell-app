@@ -1,8 +1,20 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
+layoutvse = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.H2('Cross-Sell App'),
+    html.Div(id='pageContent')
+])
+
+layoutcategories = html.Div([
+    html.H3('Zde bude vyber kategorii'),
+    dcc.Link('Vybirat produkty', href='/products')
+])
+
 layoutrecc = html.Div([
     html.H3('Cross-Sell App'),
+    dcc.Link('Zpet na vyber kategorii', href='/'),
     html.Div([
         dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
         html.Button(id='loginButton', children='Přihlásit'),
