@@ -1,0 +1,30 @@
+#!/bin/bash
+### Job Name
+#PBS -N word2vec_gridsearch_cv
+### required runtime
+#PBS -l walltime=24:00:00
+### queue for submission
+#PBS -q cpu_b
+
+# Merge output and error files
+#PBS -j oe
+
+### Request x GB of memory and X CPU cores ( old syntax)
+#PBS -l mem=256G,ncpus=16
+
+### Send me an e-mail when the job has aborted or finished.
+#PBS -m ae
+
+### Email address.
+#PBS -M chmelji6@fjfi.cvut.cz
+
+### start the job in the directory it was submitted from
+###cd $PBS_O_WORKDIR
+cd helios_jupyter_virtual_env
+
+# activate the Python virtual enviroment
+source bin/activate
+
+### run the application (with input from the .input file)
+cd $PBS_O_WORKDIR
+python gridSearchWord2Vec.py

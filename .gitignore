@@ -1,3 +1,5 @@
 /.idea
 /webapp/.idea/
 *.pyc
+/word2vec/gridSearchWord2Vec/w2v_optimal.model.wv.vectors.npy
+/word2vec/gridSearchWord2Vec/w2v_optimal.model.trainables.syn1neg.npy
