@@ -3,12 +3,15 @@ import dash_html_components as html
 import dash
 import flask
 import os
+import re
 from dash.dependencies import Input, Output, State
 
 from reccModel import *
 from historyServer import *
+from categoryBrowser import *
 from app import app
 from layouts import *
+
 
 @app.callback(
     Output('infoLabel', 'children'),
@@ -108,9 +111,10 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
 @app.callback(Output('pageContent', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
+    global RE_catID
     if pathname == '/':
          return layoutcategories
-    elif pathname == '/products':
+    elif bool(re.search(RE_catID, pathname)):
          return layoutrecc
     else:
         return '404'
@@ -119,6 +123,11 @@ def display_page(pathname):
 load_model()
 load_names()
 load_histories()
+load_categories()
+
+RE_catID = re.compile(r'products/\d+')
+
+layoutcategories.children[1] = init_category_layout()
 
 # nastav rozvrzeni stranky a pridej CSS
 app.layout = layoutvse

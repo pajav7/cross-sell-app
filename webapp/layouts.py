@@ -7,14 +7,16 @@ layoutvse = html.Div([
     html.Div(id='pageContent')
 ])
 
+
 layoutcategories = html.Div([
-    html.H3('Zde bude vyber kategorii'),
-    dcc.Link('Vybirat produkty', href='/products')
+    html.H3('Všechny kategorie'),
+    html.Div(id='categoryPage')
 ])
+
 
 layoutrecc = html.Div([
     html.H3('Cross-Sell App'),
-    dcc.Link('Zpet na vyber kategorii', href='/'),
+    dcc.Link('Zpět na všechny kategorie', href='/'),
     html.Div([
         dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
         html.Button(id='loginButton', children='Přihlásit'),
