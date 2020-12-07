@@ -7,6 +7,7 @@ import re
 from dash.dependencies import Input, Output, State
 
 from reccModel import *
+from descriptionServer import *
 from historyServer import *
 from categoryBrowser import *
 from app import app
@@ -106,6 +107,7 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
         reccURLs[0], reccURLs[1], reccURLs[2], reccURLs[3], reccURLs[4], \
         newRecommendedIDs[0], newRecommendedIDs[1], newRecommendedIDs[2], newRecommendedIDs[3], newRecommendedIDs[4], \
         reccDescriptions[0], reccDescriptions[1], reccDescriptions[2], reccDescriptions[3], reccDescriptions[4]
+
 
 # prevzato z https://dash.plotly.com/urls
 @app.callback(Output('pageContent', 'children'),
