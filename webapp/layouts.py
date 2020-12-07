@@ -1,8 +1,24 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
+layoutvse = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.H2('Cross-Sell App'),
+    html.Div(id='pageContent')
+])
+
+
+layoutcategories = html.Div([
+    html.H3('Doporučené kategorie'),
+    html.Div(id='reccCategoryList'),
+    html.H3('Všechny kategorie'),
+    html.Div(id='allCategoryList')
+])
+
+
 layoutrecc = html.Div([
     html.H3('Cross-Sell App'),
+    dcc.Link('Zpět na všechny kategorie', href='/'),
     html.Div([
         dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
         html.Button(id='loginButton', children='Přihlásit'),
@@ -14,7 +30,7 @@ layoutrecc = html.Div([
     html.Div(id='currentUserSessionHistory', children=[], style={'display': 'none'}),
     html.Br(),
     html.Div(id='currentProductIDNumber', children='0'),
-    html.Div(id='recommendationIDs', children=["1709503", "2401410", "848128007"],  style={'display': 'none'}),
+    html.Div(id='recommendationIDs', children=[],  style={'display': 'none'}),
     html.Img(id='currentProductImg', alt='obrazek vybraneho produktu', style={'height':'500px', 'width':'500px'}),
     html.Div(id='productDescription', children='aaaa'),
     html.Br(),

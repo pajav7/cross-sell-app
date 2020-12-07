@@ -1,34 +1,23 @@
 import pandas as pd
 from gensim.models import Word2Vec
 
-item_names_path = "../DATA/item_list.csv"
-
 pretrained_model = None
-item_names = pd.DataFrame()
+
 
 def load_model():
     # priprav predtrenovany model
     global pretrained_model
-    pretrained_model = Word2Vec.load('../w2v.model')
+    pretrained_model = Word2Vec.load('../w2vAllMin5.model')
     print("recommendation model loaded")
 
 
-def load_names():
-    # priprav tabulku se jmeny
-    global item_names
-    print("loading data from " + item_names_path)
-    item_names = pd.read_csv(item_names_path)
-    print(item_names.head(5))
-
-
-
-def get_recc(productIDS):
+def get_product_recc(productIDS, numberOfReccs=5):
     # doporuc neco k tomuto produktu (nebo seznamu produktu)
     global pretrained_model
     if isinstance(productIDS, list):
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS)
+        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS, topn=numberOfReccs) #topn = 5?
     else:
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS])
+        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS], topn=numberOfReccs)
 
     reccsClean = []
 
@@ -39,18 +28,9 @@ def get_recc(productIDS):
     return reccsClean
 
 
-def get_product_description(productID):
-    # vytahni z tabulky popis prave zobrazeneho produktu
-    global item_names
-    # hledej v tom jako ve stringu (mozna bude pomale) @TODO: zrychlit - najit vic popisu jednim dotazem?
-    # jediny zpusob jak najit cislo produktu v arrayich ktere jsou v druhem sloupci tabulky item_list.csv
-    # samotny vnitrek vraci boolean masku, tu aplikujeme na item_names
-    # a vyplivne to ten radek ve kterem se ID nachazi.
-    # pak jeste indexujeme 0,0 - chceme jenom nazev
-    product_description = item_names[item_names['list_id'].str.contains(productID)].iloc[0, 0] # zde je bottleneck
-    # print("description of product {} : \n {}".format(productID, product_description))
-    return product_description
+def get_category_recc(productIDS):
+
+    return
 
 
-def get_most_popular():
-    global pretrained_model
+

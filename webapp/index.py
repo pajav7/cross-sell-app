@@ -1,14 +1,14 @@
-import dash_core_components as dcc
-import dash_html_components as html
+import re
 import dash
-import flask
-import os
 from dash.dependencies import Input, Output, State
 
-from reccModel import *
-from historyServer import *
 from app import app
-from layouts import layoutrecc
+from categoryBrowser import *
+from descriptionServer import *
+from historyServer import *
+from layouts import *
+from reccModel import *
+
 
 @app.callback(
     Output('infoLabel', 'children'),
@@ -76,12 +76,12 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
     [ State('usernameInput', 'value'),
       State('currentUserSessionHistory', 'children')]
 )
-def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHistory):
+def populate_recommended(selectedProductID, clicks, inputUsername, currentSessionHistory):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
-    # dostan doporuceni k vybranemu produktu, zanes ho do historie a prehazej obrazky
-    newRecommendedIDs = get_recc(selectedProductID)
+    # dostan doporuceni k vybranemu produktu
+    newRecommendedIDs = get_product_recc(selectedProductID)
     newDescription = get_product_description(selectedProductID)
 
     # priprav seznamy
@@ -94,23 +94,45 @@ def load_next_product(selectedProductID, clicks, oldUsername,  currentSessionHis
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
         # uloz historii
-        save_history(oldUsername, currentSessionHistory)
+        save_history(inputUsername, currentSessionHistory)
     elif 'loginButton' in changed_id:
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
-        currentSessionHistory = []
+        currentSessionHistory = get_user_history(inputUsername)
 
     return newRecommendedIDs, newDescription, currentSessionHistory, \
         reccURLs[0], reccURLs[1], reccURLs[2], reccURLs[3], reccURLs[4], \
         newRecommendedIDs[0], newRecommendedIDs[1], newRecommendedIDs[2], newRecommendedIDs[3], newRecommendedIDs[4], \
         reccDescriptions[0], reccDescriptions[1], reccDescriptions[2], reccDescriptions[3], reccDescriptions[4]
 
+
+# prevzato z https://dash.plotly.com/urls
+@app.callback(Output('pageContent', 'children'),
+              Input('url', 'pathname'))
+def switch_page(pathname):
+    global RE_catID
+    if pathname == '/':
+         return layoutcategories
+    elif bool(re.search(RE_catID, pathname)):
+         return layoutrecc
+    else:
+        return '404'
+
 # nacti vsechno
 load_model()
 load_names()
 load_histories()
+load_categories()
+
+RE_catID = re.compile(r'products/\d+')
+
+layoutcategories.children[1] = get_recc_category_links(["1","2","23","45"] + translate_categories(["237","118"]))
+                                # prelozi se na 237->3, 118->5
+layoutcategories.children[3] = init_all_category_layout()
 
 # nastav rozvrzeni stranky a pridej CSS
-app.layout = layoutrecc
+app.layout = layoutvse
 
+# spust webovku
 if __name__ == '__main__':
     app.run_server(debug=True)
+
