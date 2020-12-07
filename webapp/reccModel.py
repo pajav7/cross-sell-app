@@ -1,8 +1,8 @@
 import pandas as pd
 from gensim.models import Word2Vec
 
-
 pretrained_model = None
+
 
 def load_model():
     # priprav predtrenovany model
@@ -10,13 +10,14 @@ def load_model():
     pretrained_model = Word2Vec.load('../w2vAllMin5.model')
     print("recommendation model loaded")
 
-def get_recc(productIDS):
+
+def get_product_recc(productIDS, numberOfReccs=5):
     # doporuc neco k tomuto produktu (nebo seznamu produktu)
     global pretrained_model
     if isinstance(productIDS, list):
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS) #topn = 5?
+        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS, topn=numberOfReccs) #topn = 5?
     else:
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS])
+        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS], topn=numberOfReccs)
 
     reccsClean = []
 
@@ -27,6 +28,9 @@ def get_recc(productIDS):
     return reccsClean
 
 
+def get_category_recc(productIDS):
+
+    return
 
 
 

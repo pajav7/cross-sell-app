@@ -1,17 +1,13 @@
-import dash_core_components as dcc
-import dash_html_components as html
-import dash
-import flask
-import os
 import re
+import dash
 from dash.dependencies import Input, Output, State
 
-from reccModel import *
+from app import app
+from categoryBrowser import *
 from descriptionServer import *
 from historyServer import *
-from categoryBrowser import *
-from app import app
 from layouts import *
+from reccModel import *
 
 
 @app.callback(
@@ -80,12 +76,12 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
     [ State('usernameInput', 'value'),
       State('currentUserSessionHistory', 'children')]
 )
-def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHistory):
+def populate_recommended(selectedProductID, clicks, inputUsername, currentSessionHistory):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # dostan doporuceni k vybranemu produktu
-    newRecommendedIDs = get_recc(selectedProductID)
+    newRecommendedIDs = get_product_recc(selectedProductID)
     newDescription = get_product_description(selectedProductID)
 
     # priprav seznamy
@@ -112,7 +108,7 @@ def load_next_product(selectedProductID, clicks, inputUsername, currentSessionHi
 # prevzato z https://dash.plotly.com/urls
 @app.callback(Output('pageContent', 'children'),
               Input('url', 'pathname'))
-def display_page(pathname):
+def switch_page(pathname):
     global RE_catID
     if pathname == '/':
          return layoutcategories
@@ -129,7 +125,9 @@ load_categories()
 
 RE_catID = re.compile(r'products/\d+')
 
-layoutcategories.children[1] = init_category_layout()
+layoutcategories.children[1] = get_recc_category_links(["1","2","23","45"] + translate_categories(["237","118"]))
+                                # prelozi se na 237->3, 118->5
+layoutcategories.children[3] = init_all_category_layout()
 
 # nastav rozvrzeni stranky a pridej CSS
 app.layout = layoutvse

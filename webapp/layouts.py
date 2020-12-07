@@ -9,8 +9,10 @@ layoutvse = html.Div([
 
 
 layoutcategories = html.Div([
+    html.H3('Doporučené kategorie'),
+    html.Div(id='reccCategoryList'),
     html.H3('Všechny kategorie'),
-    html.Div(id='categoryPage')
+    html.Div(id='allCategoryList')
 ])
 
 
