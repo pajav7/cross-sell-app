@@ -75,6 +75,8 @@ layoutrecc = html.Div([
         ]),
     ]),
     html.Br(),
-    html.Label(id='infoLabel', children='Info')
+    html.Label(id='infoLabel', children='Info'),
+    html.Div(id='moreProductsContent', children=[]),
+    html.Button(id='loadMoreButton', children='Načíst další produkty')
 ])
 

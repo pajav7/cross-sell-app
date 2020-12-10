@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output, State
 
 from app import app
 from categoryBrowser import *
-from descriptionServer import *
+from categoryAndDescriptionServer import *
 from historyServer import *
 from layouts import *
 from reccModel import *
@@ -82,15 +82,27 @@ def populate_recommended(selectedProductID, clicks, inputUsername, currentSessio
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # dostan doporuceni k vybranemu produktu
-    newRecommendedIDs = get_product_recc(selectedProductID)
+    currentCategoryID = re.findall(r'\d+', currentCategoryURL)[0]
+    newRecommendedIDs = check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
     newDescription = get_product_description(selectedProductID)
 
     # priprav seznamy
     reccURLs = []
     reccDescriptions = []
-    for i in range(5):
+    for i in range(min(len(newRecommendedIDs), 5)):
         reccURLs.append("http://mall.cz/id/{}".format(newRecommendedIDs[i]))
         reccDescriptions.append(get_product_description(newRecommendedIDs[i]))
+
+    # dopln mista kde jsme nemeli doporuceni
+    if(len(newRecommendedIDs) < 5):
+        if(len(newRecommendedIDs) == 0):
+            newRecommendedIDs.append("")
+            reccURLs.append("")
+            reccDescriptions.append("K tomuto produktu nemáme vhodná doporučení.")
+        for i in range(len(newRecommendedIDs), 5):
+            newRecommendedIDs.append("")
+            reccURLs.append("")
+            reccDescriptions.append("")
 
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
@@ -117,6 +129,16 @@ def switch_page(pathname):
          return layoutrecc
     else:
         return '404'
+
+@app.callback(
+    Output('moreProductsContent', 'children'),
+    Input('loadMoreButton', 'n_clicks'),
+    [ State('moreProductsContent', 'children'),
+    State('url', 'pathname')]
+)
+def load_more_products(clicks, oldchildren, currentCategoryURL):
+    return oldchildren + generate_products_from_category(5, re.findall(r'\d+', currentCategoryURL)[0])
+
 
 # nacti vsechno
 load_model()
