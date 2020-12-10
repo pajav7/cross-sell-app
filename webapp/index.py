@@ -74,9 +74,10 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
      Input('loginButton', 'n_clicks'),
     ],
     [ State('usernameInput', 'value'),
-      State('currentUserSessionHistory', 'children')]
+      State('currentUserSessionHistory', 'children'),
+      State('url', 'pathname')]
 )
-def populate_recommended(selectedProductID, clicks, inputUsername, currentSessionHistory):
+def populate_recommended(selectedProductID, clicks, inputUsername, currentSessionHistory, currentCategoryURL):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 

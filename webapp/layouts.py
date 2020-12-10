@@ -4,6 +4,10 @@ import dash_html_components as html
 layoutvse = html.Div([
     dcc.Location(id='url', refresh=False),
     html.H2('Cross-Sell App'),
+    html.Div([
+        dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
+        html.Button(id='loginButton', children='Přihlásit'),
+    ]),
     html.Div(id='pageContent')
 ])
 
@@ -19,10 +23,6 @@ layoutcategories = html.Div([
 layoutrecc = html.Div([
     html.H3('Cross-Sell App'),
     dcc.Link('Zpět na všechny kategorie', href='/'),
-    html.Div([
-        dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
-        html.Button(id='loginButton', children='Přihlásit'),
-    ]),
     html.Div([
         dcc.Input(id='productIDInput', placeholder='Zadejte ID produktu'),
         html.Button(id='IDSubmitButton', children='OK'),
