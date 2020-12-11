@@ -43,6 +43,7 @@ def check_product_category(productIDs, categoryID):
 
     return productsFromCategoryIDs
 
+
 def generate_products_from_category(N_products, categoryID):
     # vraci Div s novymi produkty a knofliky
     samples = item_names[item_names['cat_ID'] == int(categoryID)].sample(N_products)
@@ -54,10 +55,11 @@ def generate_products_from_category(N_products, categoryID):
         productURLs.append("http://mall.cz/id/{}".format(samples.iloc[i, 0]))
         productDescriptions.append(samples.iloc[i, 2])
 
-    divchildren = []
     # vygeneruj komponenty
+    divchildren = []
     for i in range(N_products):
-        divchildren.append(html.Img(id='reccImg{}'.format(samples.iloc[i, 0]), alt='obrazek produktu {}'.format(samples.iloc[i, 0]),
+        divchildren.append(html.Img(
+            id={'type':'dynamicProdImg', 'productID':int(samples.iloc[i, 0])}, alt='obrázek produktu {}'.format(samples.iloc[i, 0]),
                  style={'height': '200px', 'width': '200px', 'margin': '10px'}))
         divchildren.append(html.Div(children=[
             html.A(id='reccLink{}'.format(samples.iloc[i, 0]), href=productURLs[i], children=samples.iloc[i, 0]),

@@ -51,3 +51,6 @@ def translate_categories(oldCategoryIDsList):
     newCatIDs = list(map(int, newCatIDs))
     return newCatIDs
 
+
+def get_category_name(catID):
+    return category_names[category_names['cat_ID'] == int(catID)].iloc[0, 1]

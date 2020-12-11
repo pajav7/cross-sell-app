@@ -1,6 +1,6 @@
 import re
 import dash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output, State, ALL, MATCH
 
 from app import app
 from categoryBrowser import *
@@ -18,13 +18,16 @@ from reccModel import *
     Input('reccImg3', 'n_clicks'),
     Input('reccImg4', 'n_clicks'),
     Input('reccImg5', 'n_clicks'),
-    Input('IDSubmitButton', 'n_clicks')
+    Input('IDSubmitButton', 'n_clicks'),
+    Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks'),
     ],
     [State('recommendationIDs', 'children'),
-     State('productIDInput', 'value')# jenom precti, nereaguj na jejich zmenu
+     State('productIDInput', 'value'),# jenom precti, nereaguj na jejich zmenu
+     State({'type': 'dynamicProdImg', 'productID': ALL}, 'id'),
     ]
 )
-def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitClicks, currentRecommendedIDs, productIDfromInput):
+def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitClicks, dynamicProdClicks,\
+                           currentRecommendedIDs, productIDfromInput, dynamicProdIDs):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'reccImg1' in changed_id:
@@ -45,6 +48,9 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
     elif 'IDSubmitButton' in changed_id:
         newproductID = productIDfromInput
         msg = 'Submit button clicked. Custom product ID: {}'.format(newproductID)
+    elif 'dynamicProdImg' in changed_id:
+        newproductID = re.findall(r'\d+', changed_id)[0]
+        msg = 'Dynamic product clicked. ID: {}'.format(newproductID)
     else:
         msg = 'None of the images have been clicked yet'
         newproductID = '848128007'
@@ -120,15 +126,17 @@ def populate_recommended(selectedProductID, clicks, inputUsername, currentSessio
 
 # prevzato z https://dash.plotly.com/urls
 @app.callback(Output('pageContent', 'children'),
+              Output('categoryHeading', 'children'),
               Input('url', 'pathname'))
 def switch_page(pathname):
     global RE_catID
     if pathname == '/':
-         return layoutcategories
+        return layoutcategories, ''
     elif bool(re.search(RE_catID, pathname)):
-         return layoutrecc
+        return layoutrecc, get_category_name(re.findall(r'\d+', pathname)[0])
     else:
-        return '404'
+        return layout404, 'Čtyřistačtyři'
+
 
 @app.callback(
     Output('moreProductsContent', 'children'),
@@ -148,6 +156,7 @@ load_categories()
 
 RE_catID = re.compile(r'products/\d+')
 
+# priprav uvodni stranku
 layoutcategories.children[1] = get_recc_category_links(["1","2","23","45"] + translate_categories(["237","118"]))
                                 # prelozi se na 237->3, 118->5
 layoutcategories.children[3] = init_all_category_layout()
