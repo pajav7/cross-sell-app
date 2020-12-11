@@ -13,38 +13,22 @@ from reccModel import *
 @app.callback(
     Output('infoLabel', 'children'),
     Output('currentProductIDNumber', 'children'),
-    [Input('reccImg1', 'n_clicks'),
-    Input('reccImg2', 'n_clicks'),
-    Input('reccImg3', 'n_clicks'),
-    Input('reccImg4', 'n_clicks'),
-    Input('reccImg5', 'n_clicks'),
-    Input('IDSubmitButton', 'n_clicks'),
-    Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks'),
+    [Input({'type': 'reccProdImg', 'productID': ALL}, 'n_clicks'),
+     Input('IDSubmitButton', 'n_clicks'),
+     Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks')
     ],
-    [State('recommendationIDs', 'children'),
-     State('productIDInput', 'value'),# jenom precti, nereaguj na jejich zmenu
-     State({'type': 'dynamicProdImg', 'productID': ALL}, 'id'),
+    [State({'type': 'reccProdImg', 'productID': ALL}, 'id'),
+     State('productIDInput', 'value'),
+     State({'type': 'dynamicProdImg', 'productID': ALL}, 'id')
     ]
 )
-def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitClicks, dynamicProdClicks,\
-                           currentRecommendedIDs, productIDfromInput, dynamicProdIDs):
+def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks,\
+                           reccProdIDs, productIDfromInput, dynamicProdIDs):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if 'reccImg1' in changed_id:
-        newproductID = currentRecommendedIDs[0]
-        msg = 'Image 1 was most recently clicked, ID: {}'.format(newproductID)
-    elif 'reccImg2' in changed_id:
-        newproductID = currentRecommendedIDs[1]
-        msg = 'Image 2 was most recently clicked, ID: {}'.format(newproductID)
-    elif 'reccImg3' in changed_id:
-        newproductID = currentRecommendedIDs[2]
-        msg = 'Image 3 was most recently clicked, ID: {}'.format(newproductID)
-    elif 'reccImg4' in changed_id:
-        newproductID = currentRecommendedIDs[3]
-        msg = 'Image 4 was most recently clicked, ID: {}'.format(newproductID)
-    elif 'reccImg5' in changed_id:
-        newproductID = currentRecommendedIDs[4]
-        msg = 'Image 5 was most recently clicked, ID: {}'.format(newproductID)
+    if 'reccProdImg' in changed_id:
+        newproductID = re.findall(r'\d+', changed_id)[0]
+        msg = 'Recommended product clicked. ID: {}'.format(newproductID)
     elif 'IDSubmitButton' in changed_id:
         newproductID = productIDfromInput
         msg = 'Submit button clicked. Custom product ID: {}'.format(newproductID)
@@ -61,21 +45,7 @@ def get_next_product_click(clicks1, clicks2, clicks3, clicks4, clicks5, submitCl
     Output('recommendationIDs', 'children'),
     Output('productDescription', 'children'),
     Output('currentUserSessionHistory', 'children'),
-    Output('reccLink1', 'href'),
-    Output('reccLink2', 'href'),
-    Output('reccLink3', 'href'),
-    Output('reccLink4', 'href'),
-    Output('reccLink5', 'href'),
-    Output('reccLink1', 'children'),
-    Output('reccLink2', 'children'),
-    Output('reccLink3', 'children'),
-    Output('reccLink4', 'children'),
-    Output('reccLink5', 'children'),
-    Output('reccDesc1', 'children'),
-    Output('reccDesc2', 'children'),
-    Output('reccDesc3', 'children'),
-    Output('reccDesc4', 'children'),
-    Output('reccDesc5', 'children'),
+    Output('reccProductsContent', 'children'),
     [Input('currentProductIDNumber', 'children'),
      Input('loginButton', 'n_clicks'),
     ],
@@ -89,26 +59,10 @@ def populate_recommended(selectedProductID, clicks, inputUsername, currentSessio
 
     # dostan doporuceni k vybranemu produktu
     currentCategoryID = re.findall(r'\d+', currentCategoryURL)[0]
-    newRecommendedIDs = check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
+    unfilteredReccs = get_product_recc(selectedProductID, numberOfReccs=10)
+    print("unfiltered Reccs: {}".format(unfilteredReccs))
+    newRecommendedIDs = check_product_category(unfilteredReccs, currentCategoryID)
     newDescription = get_product_description(selectedProductID)
-
-    # priprav seznamy
-    reccURLs = []
-    reccDescriptions = []
-    for i in range(min(len(newRecommendedIDs), 5)):
-        reccURLs.append("http://mall.cz/id/{}".format(newRecommendedIDs[i]))
-        reccDescriptions.append(get_product_description(newRecommendedIDs[i]))
-
-    # dopln mista kde jsme nemeli doporuceni
-    if(len(newRecommendedIDs) < 5):
-        if(len(newRecommendedIDs) == 0):
-            newRecommendedIDs.append("")
-            reccURLs.append("")
-            reccDescriptions.append("K tomuto produktu nemáme vhodná doporučení.")
-        for i in range(len(newRecommendedIDs), 5):
-            newRecommendedIDs.append("")
-            reccURLs.append("")
-            reccDescriptions.append("")
 
     if 'currentProductIDNumber' in changed_id:
         currentSessionHistory.append(str(selectedProductID))
@@ -118,10 +72,7 @@ def populate_recommended(selectedProductID, clicks, inputUsername, currentSessio
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
         currentSessionHistory = get_user_history(inputUsername)
 
-    return newRecommendedIDs, newDescription, currentSessionHistory, \
-        reccURLs[0], reccURLs[1], reccURLs[2], reccURLs[3], reccURLs[4], \
-        newRecommendedIDs[0], newRecommendedIDs[1], newRecommendedIDs[2], newRecommendedIDs[3], newRecommendedIDs[4], \
-        reccDescriptions[0], reccDescriptions[1], reccDescriptions[2], reccDescriptions[3], reccDescriptions[4]
+    return newRecommendedIDs, newDescription, currentSessionHistory, generate_products_recommended(newRecommendedIDs)
 
 
 # prevzato z https://dash.plotly.com/urls

@@ -3,7 +3,6 @@ from gensim.models import Word2Vec
 
 pretrained_model = None
 
-
 def load_model():
     # priprav predtrenovany model
     global pretrained_model
@@ -26,11 +25,5 @@ def get_product_recc(productIDS, numberOfReccs=5):
         reccsClean.append(recc[0])
 
     return reccsClean
-
-
-def get_category_recc(productIDS):
-
-    return
-
 
 

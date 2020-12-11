@@ -29,23 +29,57 @@ def check_product_category(productIDs, categoryID):
 
     minidf = item_names[item_names['product_id'].isin(productIDs)]
     productsFromCategoryIDs = []
-    try:
-        for pID in productIDs:
+    for pID in productIDs:
+        try:
             # zkontroluj jestli jsou doporucene produkty z teto kategorie
-            foundCatID = minidf.loc[minidf['product_id'] == pID].iloc[0, 1]
-            if(foundCatID == categoryID):
+            foundCatID = minidf.loc[minidf['product_id'] == int(pID)].iloc[0, 1]
+            print("pID type: {}, categoryID type: {}, foundCatID type: {}".format(type(pID), type(categoryID), type(foundCatID)))
+            if(int(foundCatID) == int(categoryID)):
                 productsFromCategoryIDs.append(pID)
             else:
                 continue
-    except IndexError:
-        print("no products in {} are from category {}".format(productIDs, categoryID))
-        print("returning {}".format(productsFromCategoryIDs))
+        except IndexError:
+            print("product {} is not from category {}".format(pID, categoryID))
+
+    print("returning {}".format(productsFromCategoryIDs))
 
     return productsFromCategoryIDs
 
 
+def generate_products_recommended(productIDs):
+    # vraci Div s novymi produkty (cast "doporucene produkty")
+    global item_names
+
+    if(len(productIDs) == 0):
+        return "K tomuto produktu/historii bohužel nemáme doporučení z této kategorie."
+
+    productIDsDF = item_names[item_names['product_id'].isin(productIDs)]
+
+    # priprav seznamy
+    numberOfRecommendations = min(len(productIDs), 5)
+    productURLs = []
+    productDescriptions = []
+    for i in range(numberOfRecommendations):
+        productURLs.append("http://mall.cz/id/{}".format(productIDsDF.iloc[i, 0]))
+        productDescriptions.append(productIDsDF.iloc[i, 2])
+
+    # vygeneruj komponenty
+    divchildren = []
+    for i in range(numberOfRecommendations):
+        divchildren.append(html.Img(
+            id={'type': 'reccProdImg', 'productID': int(productIDsDF.iloc[i, 0])},
+            alt='obrázek produktu {}'.format(productIDsDF.iloc[i, 0]),
+            style={'height': '200px', 'width': '200px', 'margin': '10px'}))
+        divchildren.append(html.Div(children=[
+            html.A(id='reccLink{}'.format(productIDsDF.iloc[i, 0]), href=productURLs[i], children=productIDsDF.iloc[i, 0]),
+            html.Div(id='reccDesc{}', children=productDescriptions[i])
+        ]))
+
+    return divchildren
+
+
 def generate_products_from_category(N_products, categoryID):
-    # vraci Div s novymi produkty a knofliky
+    # vraci Div s novymi produkty (cast "jine z teto kategorie")
     samples = item_names[item_names['cat_ID'] == int(categoryID)].sample(N_products)
 
     # priprav seznamy
@@ -62,8 +96,8 @@ def generate_products_from_category(N_products, categoryID):
             id={'type':'dynamicProdImg', 'productID':int(samples.iloc[i, 0])}, alt='obrázek produktu {}'.format(samples.iloc[i, 0]),
                  style={'height': '200px', 'width': '200px', 'margin': '10px'}))
         divchildren.append(html.Div(children=[
-            html.A(id='reccLink{}'.format(samples.iloc[i, 0]), href=productURLs[i], children=samples.iloc[i, 0]),
-            html.Div(id='reccDesc{}', children=productDescriptions[i])
+            html.A(id='dynLink{}'.format(samples.iloc[i, 0]), href=productURLs[i], children=samples.iloc[i, 0]),
+            html.Div(id='dynDesc{}', children=productDescriptions[i])
             ]))
 
     return divchildren
