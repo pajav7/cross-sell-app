@@ -19,55 +19,62 @@ from reccModel import *
     ],
     [State({'type': 'reccProdImg', 'productID': ALL}, 'id'),
      State('productIDInput', 'value'),
+     State('currentProductIDNumber', 'children'),
      State({'type': 'dynamicProdImg', 'productID': ALL}, 'id')
     ]
 )
 def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks,\
-                           reccProdIDs, productIDfromInput, dynamicProdIDs):
+                           reccProdIDs, productIDfromInput, currentProductID, dynamicProdIDs):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
     if 'reccProdImg' in changed_id:
-        newproductID = re.findall(r'\d+', changed_id)[0]
-        msg = 'Recommended product clicked. ID: {}'.format(newproductID)
+        newProductID = re.findall(r'\d+', changed_id)[0]
+        msg = 'Recommended product clicked. ID: {}'.format(newProductID)
     elif 'IDSubmitButton' in changed_id:
-        newproductID = productIDfromInput
-        msg = 'Submit button clicked. Custom product ID: {}'.format(newproductID)
+        newProductID = productIDfromInput
+        msg = 'Submit button clicked. Custom product ID: {}'.format(newProductID)
     elif 'dynamicProdImg' in changed_id:
-        newproductID = re.findall(r'\d+', changed_id)[0]
-        msg = 'Dynamic product clicked. ID: {}'.format(newproductID)
+        newProductID = re.findall(r'\d+', changed_id)[0]
+        msg = 'Dynamic product clicked. ID: {}'.format(newProductID)
     else:
-        msg = 'None of the images have been clicked yet'
-        newproductID = '848128007'
-    return msg, newproductID
+        msg = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        newProductID = currentProductID
+
+    return msg, newProductID
 
 
 @app.callback(
     Output('recommendationIDs', 'children'),
     Output('productDescription', 'children'),
-    Output('currentUserSessionHistory', 'children'),
+    Output('currentUserSessionHistory', 'data'),
     Output('reccProductsContent', 'children'),
     [Input('currentProductIDNumber', 'children'),
      Input('loginButton', 'n_clicks'),
     ],
     [ State('usernameInput', 'value'),
-      State('currentUserSessionHistory', 'children'),
+      State('currentUserSessionHistory', 'data'),
       State('url', 'pathname')]
 )
-def populate_recommended(selectedProductID, clicks, inputUsername, currentSessionHistory, currentCategoryURL):
+def populate_recommended(selectedProductID, loginClicks, inputUsername, currentSessionHistory, currentCategoryURL):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # dostan doporuceni k vybranemu produktu
     currentCategoryID = re.findall(r'\d+', currentCategoryURL)[0]
-    unfilteredReccs = get_product_recc(selectedProductID, numberOfReccs=10)
-    print("unfiltered Reccs: {}".format(unfilteredReccs))
-    newRecommendedIDs = check_product_category(unfilteredReccs, currentCategoryID)
+    newRecommendedIDs = check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
     newDescription = get_product_description(selectedProductID)
 
     if 'currentProductIDNumber' in changed_id:
-        currentSessionHistory.append(str(selectedProductID))
-        # uloz historii
-        save_history(inputUsername, currentSessionHistory)
+        if selectedProductID != '0':
+            # ugly hack
+            # v momente kdy vlezu do kategorie se tento callback spusti
+            # (zrejme kvuli tomu ze se znovu generuji vsechny ty komponenty)
+            # zmeni se tedy vzdy n_clicks, i kdyz uzivatel na nic nekliknul a nic noveho jeste nevidel
+            # (protoze se nam jeste nenacetla nova kategorie)
+            # proto pri defaultni hodnote z layoutu nic nedelej
+            currentSessionHistory.append([str(selectedProductID),str(currentCategoryID)])
+            # uloz historii
+            save_history(inputUsername, currentSessionHistory)
     elif 'loginButton' in changed_id:
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
         currentSessionHistory = get_user_history(inputUsername)

@@ -20,7 +20,10 @@ def get_product_description(productID):
     # samotny vnitrek vraci boolean masku, tu aplikujeme na item_names
     # a vyplivne to ten radek ve kterem se ID nachazi.
     # pak jeste indexujeme 0,0 - chceme jenom nazev
-    product_description = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 2]
+    try:
+        product_description = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 2]
+    except IndexError:
+        product_description = "K tomuto produktu neexistuje popis."
     return product_description
 
 
@@ -33,15 +36,12 @@ def check_product_category(productIDs, categoryID):
         try:
             # zkontroluj jestli jsou doporucene produkty z teto kategorie
             foundCatID = minidf.loc[minidf['product_id'] == int(pID)].iloc[0, 1]
-            print("pID type: {}, categoryID type: {}, foundCatID type: {}".format(type(pID), type(categoryID), type(foundCatID)))
             if(int(foundCatID) == int(categoryID)):
                 productsFromCategoryIDs.append(pID)
             else:
                 continue
         except IndexError:
             print("product {} is not from category {}".format(pID, categoryID))
-
-    print("returning {}".format(productsFromCategoryIDs))
 
     return productsFromCategoryIDs
 

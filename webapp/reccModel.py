@@ -13,10 +13,14 @@ def load_model():
 def get_product_recc(productIDS, numberOfReccs=5):
     # doporuc neco k tomuto produktu (nebo seznamu produktu)
     global pretrained_model
-    if isinstance(productIDS, list):
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS, topn=numberOfReccs) #topn = 5?
-    else:
-        reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS], topn=numberOfReccs)
+    try:
+        if isinstance(productIDS, list):
+            reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS, topn=numberOfReccs) #topn = 5?
+        else:
+            reccsWithSimilarities = pretrained_model.wv.most_similar(positive=[productIDS], topn=numberOfReccs)
+    except KeyError:
+        print("error: {} not in vocabulary".format(productIDS))
+        reccsWithSimilarities = []
 
     reccsClean = []
 

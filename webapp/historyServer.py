@@ -1,27 +1,29 @@
 
 import pandas as pd
+import json
 
-history = pd.DataFrame()
+history = {}
 
-historypath = 'historie.csv'
+historypath = 'historie.json'
 
 def load_histories(path = historypath):
     # nacte soubor s historiemi
     global history
     print("loading history from " + path)
     try:
-        history = pd.read_csv(path)
+        with open(path) as f:
+            history = json.load(f)
     except FileNotFoundError:
-        history = pd.DataFrame()
-    print(history.head(5))
+        history = []
+    print(history)
 
 
 def get_user_history(username):
     global history
+    # capni sloupec z tabulky a nacti jako list
     try:
         # pokud user existuje, nacti jeho sloupec
         userhistory = history[username]
-        userhistory = userhistory.dropna()
         return userhistory
     except KeyError:
         return []
@@ -31,6 +33,8 @@ def save_history(username, historyList):
     # ulozi historii do souboru
     global history, historypath
 
+    # TODO : predelat na JSON, ne DataFrame
+
     print(username)
     print(historyList)
 
@@ -39,13 +43,15 @@ def save_history(username, historyList):
         return
 
     if username not in history:
-        # kdyz to je novy uzivatel tak to pripoj jako novy sloupec
+        # kdyz to je novy uzivatel tak to pripoj jako novy zaznam
         print('user {} doesn\'t exist, creating new column'.format(username))
-        userhistorydf = pd.DataFrame({username: historyList})
-        history = pd.concat([history, userhistorydf], axis=1)
+        history[username] = historyList
+
     else:
         print('user {} found, appending to existing history'.format(username))
-        userhistorydf = pd.DataFrame({username: historyList})
-        history[username] = userhistorydf
+        history[username] = historyList
 
-    history.to_csv(historypath)
+    #JSON:{data:{username:Jon, data:product1: "12233", product2: "4566", product3:"654"}, metadata:xXyz}
+
+    with open(historypath, 'w') as f:
+       json.dump(history,f)
