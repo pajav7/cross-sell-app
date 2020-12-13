@@ -32,6 +32,7 @@ def check_product_category(productIDs, categoryID):
 
     minidf = item_names[item_names['product_id'].isin(productIDs)]
     productsFromCategoryIDs = []
+    categoryRecommendedSet = {str(categoryID)}
     for pID in productIDs:
         try:
             # zkontroluj jestli jsou doporucene produkty z teto kategorie
@@ -39,11 +40,12 @@ def check_product_category(productIDs, categoryID):
             if(int(foundCatID) == int(categoryID)):
                 productsFromCategoryIDs.append(pID)
             else:
-                continue
+                print("product {} is not from category {}".format(pID, categoryID))
+                categoryRecommendedSet.add(str(foundCatID))
         except IndexError:
-            print("product {} is not from category {}".format(pID, categoryID))
+            print("indexerror: product {} is not from category {}".format(pID, categoryID))
 
-    return productsFromCategoryIDs
+    return productsFromCategoryIDs, categoryRecommendedSet
 
 
 def generate_products_recommended(productIDs):

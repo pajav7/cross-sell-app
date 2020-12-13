@@ -5,6 +5,7 @@ layoutvse = html.Div([
     dcc.Location(id='url', refresh=False),
     html.H2('Cross-Sell App'),
     dcc.Store(id='currentUserSessionHistory', storage_type='memory', data=[]),
+    dcc.Store(id='categoriesRecommended', storage_type='memory', data=[]),
     html.Div([
         dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
         html.Button(id='loginButton', children='Přihlásit'),

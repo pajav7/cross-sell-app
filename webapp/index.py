@@ -47,21 +47,26 @@ def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks,\
     Output('recommendationIDs', 'children'),
     Output('productDescription', 'children'),
     Output('currentUserSessionHistory', 'data'),
+    Output('categoriesRecommended', 'data'),
     Output('reccProductsContent', 'children'),
     [Input('currentProductIDNumber', 'children'),
      Input('loginButton', 'n_clicks'),
     ],
-    [ State('usernameInput', 'value'),
-      State('currentUserSessionHistory', 'data'),
-      State('url', 'pathname')]
+    [State('usernameInput', 'value'),
+     State('currentUserSessionHistory', 'data'),
+     State('categoriesRecommended', 'data'),
+     State('url', 'pathname')]
 )
-def populate_recommended(selectedProductID, loginClicks, inputUsername, currentSessionHistory, currentCategoryURL):
+def populate_recommended_and_update_history(selectedProductID, loginClicks, inputUsername,
+                                            currentSessionHistory, currentSessionRecommendedCategories,
+                                            currentCategoryURL):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
 
     # dostan doporuceni k vybranemu produktu
     currentCategoryID = re.findall(r'\d+', currentCategoryURL)[0]
-    newRecommendedIDs = check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
+    newRecommendedIDs, newRecommendedCategories = \
+        check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
     newDescription = get_product_description(selectedProductID)
 
     if 'currentProductIDNumber' in changed_id:
@@ -79,16 +84,25 @@ def populate_recommended(selectedProductID, loginClicks, inputUsername, currentS
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
         currentSessionHistory = get_user_history(inputUsername)
 
-    return newRecommendedIDs, newDescription, currentSessionHistory, generate_products_recommended(newRecommendedIDs)
+    # pridej nove doporucene kategorie
+    currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
+    currentSessionRecommendedCategories.update(newRecommendedCategories)
+    currentSessionRecommendedCategories = list(currentSessionRecommendedCategories)
+
+    return newRecommendedIDs, newDescription, currentSessionHistory, \
+           currentSessionRecommendedCategories, generate_products_recommended(newRecommendedIDs)
 
 
-# prevzato z https://dash.plotly.com/urls
-@app.callback(Output('pageContent', 'children'),
-              Output('categoryHeading', 'children'),
-              Input('url', 'pathname'))
-def switch_page(pathname):
+@app.callback(
+    Output('pageContent', 'children'),
+    Output('categoryHeading', 'children'),
+    Input('url', 'pathname'),
+    State('categoriesRecommended', 'data')
+)
+def switch_page(pathname, categoriesRecommendedList):
     global RE_catID
     if pathname == '/':
+        layoutcategories.children[1] = get_recc_category_links(categoriesRecommendedList)
         return layoutcategories, ''
     elif bool(re.search(RE_catID, pathname)):
         return layoutrecc, get_category_name(re.findall(r'\d+', pathname)[0])
@@ -99,11 +113,12 @@ def switch_page(pathname):
 @app.callback(
     Output('moreProductsContent', 'children'),
     Input('loadMoreButton', 'n_clicks'),
-    [ State('moreProductsContent', 'children'),
-    State('url', 'pathname')]
+    [State('moreProductsContent', 'children'),
+     State('url', 'pathname')]
 )
 def load_more_products(clicks, oldchildren, currentCategoryURL):
     return oldchildren + generate_products_from_category(5, re.findall(r'\d+', currentCategoryURL)[0])
+
 
 
 # nacti vsechno

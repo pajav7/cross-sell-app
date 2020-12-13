@@ -20,20 +20,19 @@ def load_histories(path = historypath):
 
 def get_user_history(username):
     global history
-    # capni sloupec z tabulky a nacti jako list
+    # capni sloupec z JSONu a nacti jako list
     try:
-        # pokud user existuje, nacti jeho sloupec
+        # pokud user existuje, nacti jeho historii
         userhistory = history[username]
         return userhistory
     except KeyError:
+        # pokud neexistuje, zaloz novy seznam
         return []
 
 
 def save_history(username, historyList):
     # ulozi historii do souboru
     global history, historypath
-
-    # TODO : predelat na JSON, ne DataFrame
 
     print(username)
     print(historyList)
@@ -51,7 +50,11 @@ def save_history(username, historyList):
         print('user {} found, appending to existing history'.format(username))
         history[username] = historyList
 
-    #JSON:{data:{username:Jon, data:product1: "12233", product2: "4566", product3:"654"}, metadata:xXyz}
+    # JSON structure:
+    # { username1: [ [pID1, catID1], [pID2, catID2], ... ],
+    # username2: [ [pID1, catID1], ... ],
+    # ... }
 
+    # TODO otestovat jestli to neustale otevirani souboru nezpomaluje (ugly hack)
     with open(historypath, 'w') as f:
        json.dump(history,f)

@@ -34,15 +34,16 @@ def init_all_category_layout():
 def get_recc_category_links(reccCategoryIDs):
     # vygeneruj odkazy na doporucene kategorie
     global category_names
-    reccCategoryLayout = []
-    reccCategoryNames = category_names[category_names["cat_ID"].isin(reccCategoryIDs)]["cat_name"]
+    reccCategoryLayoutChildren = []
+    #reccCategoryNames = category_names[category_names["cat_ID"].isin(reccCategoryIDs)]["cat_name"]
     for i in range(len(reccCategoryIDs)):
-        reccCategoryLayout.append(
-            dcc.Link(id="linkCat_{}".format(reccCategoryIDs[i]), children=reccCategoryNames.iloc[i],
+        reccCategoryLayoutChildren.append(
+            dcc.Link(id="linkCat_{}".format(reccCategoryIDs[i]),
+                     children=category_names[category_names['cat_ID'] == int(reccCategoryIDs[i])].iloc[0, 1],
                      href="/products/{}".format(reccCategoryIDs[i])))
-        reccCategoryLayout.append(html.Br())
+        reccCategoryLayoutChildren.append(html.Br())
 
-    return html.Div(children=reccCategoryLayout)
+    return html.Div(children=reccCategoryLayoutChildren)
 
 
 def translate_categories(oldCategoryIDsList):
