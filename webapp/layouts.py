@@ -1,15 +1,12 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-
-
 layoutcategories = html.Div(id='layoutCategories', children=[
     html.H3('Doporučené kategorie'),
     html.Div(id='reccCategoryList'),
     html.H3('Všechny kategorie'),
     html.Div(id='allCategoryList')
 ])
-
 
 layoutrecc = html.Div(id='layoutRecc', children=[
     dcc.Link('Zpět na všechny kategorie', href='/'),
@@ -37,7 +34,6 @@ layout404 = html.Div([
     html.Label(children='Omlouváme se, zde nejsou žádné produkty.'),
     dcc.Link('Zpět na všechny kategorie', href='/')
 ])
-
 
 layoutvse = html.Div([
     dcc.Location(id='url', refresh=False),

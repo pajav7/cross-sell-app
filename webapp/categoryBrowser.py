@@ -3,17 +3,13 @@ import dash_html_components as html
 import pandas as pd
 
 category_names_path = "../DATA/category/name_key.csv"
-category_translations_path = "../DATA/category/reduced_category_key.csv"
-
 category_names = pd.DataFrame()
-category_translations = pd.DataFrame()
 number_of_categories = 1
 
 
 def load_categories():
-    global category_names, category_translations
+    global category_names
     category_names = pd.read_csv(category_names_path)
-    category_translations = pd.read_csv(category_translations_path)
 
 
 def init_all_category_layout():
@@ -44,13 +40,6 @@ def get_recc_category_links(reccCategoryIDs):
         reccCategoryLayoutChildren.append(html.Br())
 
     return html.Div(children=reccCategoryLayoutChildren)
-
-
-def translate_categories(oldCategoryIDsList):
-    # prelozi stare ID na nove
-    newCatIDs = category_translations[category_translations["categories"].isin(oldCategoryIDsList)]["cat_ID"].tolist()
-    newCatIDs = list(map(int, newCatIDs))
-    return newCatIDs
 
 
 def get_category_name(catID):

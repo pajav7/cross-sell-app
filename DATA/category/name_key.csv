@@ -1,0 +1,73 @@
+cat_ID,cat_name
+1,Hračky
+2,Péče o dítě
+3,Obuv
+4,Kuchyně
+5,Mobilní telefony
+7,Televizory
+8,Cyklistika
+9,Chladničky
+10,Auto-moto potřeby
+11,Dámské oblečení
+12,Nábytek
+13,Vysavače
+14,Pracovní výstroj
+15,Zahrada
+16,Psi
+17,Pračky
+18,"Dům, byt"
+19,"Camping, outdoor"
+20,Notebooky
+21,Kočky
+22,Nářadí
+23,Oblečení
+24,"Espressa, kávovary"
+25,"PC doplňky, příslušenství"
+26,Dětské oblečení
+27,Hodinky
+28,Osobní péče a kosmetika
+29,"Bytový textil, koberce"
+30,"Dílna, stavební technika"
+31,Různé
+32,"Fitness, posilování"
+33,"Ohřev vody, vytápění"
+34,Myčky
+35,Sluchátka
+36,Pánské oblečení
+37,Skladování
+38,Reproduktory
+39,Čištění
+40,Rybářské potřeby
+41,Parfémy
+42,Tablety
+43,Koupelna
+44,Klimatizace a ventilátory
+45,"Batohy, zavazadla"
+47,Žehličky
+46,"Tiskárny, skenery"
+48,kamery a fotoaparáty
+49,Kancelářské potřeby
+50,Šperky
+51,Jídlo
+52,"Pouzdra, kryty, skla"
+53,Zavazadla
+54,Herní příslušenství
+55,Zdravotní pomůcky
+56,Zvířata
+57,Kabely
+58,Zimní sporty
+59,"Hodiny, budíky"
+60,Fotoalba a scrapbooky
+61,Sport
+99,Apple store
+62,"Dalekohledy, mikroskopy"
+63,Rádia
+64,"Masáže, relaxace"
+65,Knihy
+66,Hudební nástroje
+67,Apple iPhone
+68,"Baterie, akumulátory"
+69,Filmové předměty
+70,"Elektronické, robotické, technické"
+71,Lovecké potřeby
+72,Brýle
