@@ -17,12 +17,9 @@ def load_names():
 def get_product_description(productID):
     # vytahni z tabulky popis prave zobrazeneho produktu
     global item_names
-    # samotny vnitrek vraci boolean masku, tu aplikujeme na item_names
-    # a vyplivne to ten radek ve kterem se ID nachazi.
-    # pak jeste indexujeme 0,0 - chceme jenom nazev
     try:
         product_description = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 2]
-    except IndexError:
+    except (IndexError, TypeError) as e:
         product_description = "K tomuto produktu neexistuje popis."
     return product_description
 
@@ -40,7 +37,7 @@ def check_product_category(productIDs, categoryID):
             if(int(foundCatID) == int(categoryID)):
                 productsFromCategoryIDs.append(pID)
             else:
-                print("product {} is not from category {}".format(pID, categoryID))
+                #print("product {} is not from category {}".format(pID, categoryID))
                 categoryRecommendedSet.add(str(foundCatID))
         except IndexError:
             print("indexerror: product {} is not from category {}".format(pID, categoryID))

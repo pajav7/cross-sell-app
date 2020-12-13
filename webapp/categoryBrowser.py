@@ -38,7 +38,7 @@ def get_recc_category_links(reccCategoryIDs):
     #reccCategoryNames = category_names[category_names["cat_ID"].isin(reccCategoryIDs)]["cat_name"]
     for i in range(len(reccCategoryIDs)):
         reccCategoryLayoutChildren.append(
-            dcc.Link(id="linkCat_{}".format(reccCategoryIDs[i]),
+            dcc.Link(id="linkReccCat_{}".format(reccCategoryIDs[i]),
                      children=category_names[category_names['cat_ID'] == int(reccCategoryIDs[i])].iloc[0, 1],
                      href="/products/{}".format(reccCategoryIDs[i])))
         reccCategoryLayoutChildren.append(html.Br())

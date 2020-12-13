@@ -1,21 +1,9 @@
 import dash_core_components as dcc
 import dash_html_components as html
 
-layoutvse = html.Div([
-    dcc.Location(id='url', refresh=False),
-    html.H2('Cross-Sell App'),
-    dcc.Store(id='currentUserSessionHistory', storage_type='memory', data=[]),
-    dcc.Store(id='categoriesRecommended', storage_type='memory', data=[]),
-    html.Div([
-        dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
-        html.Button(id='loginButton', children='Přihlásit'),
-    ]),
-    html.H3(id='categoryHeading', children='Cross-Sell App'),
-    html.Div(id='pageContent')
-])
 
 
-layoutcategories = html.Div([
+layoutcategories = html.Div(id='layoutCategories', children=[
     html.H3('Doporučené kategorie'),
     html.Div(id='reccCategoryList'),
     html.H3('Všechny kategorie'),
@@ -23,11 +11,9 @@ layoutcategories = html.Div([
 ])
 
 
-layoutrecc = html.Div([
+layoutrecc = html.Div(id='layoutRecc', children=[
     dcc.Link('Zpět na všechny kategorie', href='/'),
     html.Br(),
-    html.Div(id='currentProductIDNumber', children='0'),
-    html.Div(id='recommendationIDs', children=[],  style={'display': 'none'}),
     html.Img(id='currentProductImg', alt='obrazek vybraneho produktu', style={'height':'500px', 'width':'500px'}),
     html.Div(id='productDescription', children='aaaa'),
     html.Br(),
@@ -50,4 +36,20 @@ layoutrecc = html.Div([
 layout404 = html.Div([
     html.Label(children='Omlouváme se, zde nejsou žádné produkty.'),
     dcc.Link('Zpět na všechny kategorie', href='/')
+])
+
+
+layoutvse = html.Div([
+    dcc.Location(id='url', refresh=False),
+    html.H2('Cross-Sell App'),
+    dcc.Store(id='currentUserSessionHistory', storage_type='memory', data=[]),
+    dcc.Store(id='categoriesRecommended', storage_type='memory', data=[]),
+    html.Div([
+        dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
+        html.Button(id='loginButton', children='Přihlásit'),
+    ]),
+    layoutcategories,
+    html.Div(id='currentProductIDNumber', children='0', style={'display': 'none'}),
+    html.H3(id='categoryHeading', children='Cross-Sell App'),
+    layoutrecc
 ])
