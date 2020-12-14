@@ -133,7 +133,7 @@ def generate_products_from_history(inputUsername, userHistoryList):
     for i in range(historyLength):
         productURLs.append("http://mall.cz/id/{}".format(productsVisited[i]))
         productDescriptions.append("{}, kategorie: {} - {}".format(
-            productIDsDF[productIDsDF['product_id']==int(productsVisited[i])].iloc[0, 2],
+            productIDsDF[productIDsDF['product_id'] == int(productsVisited[i])].iloc[0, 2],
             categoriesVisited[i], get_category_name(categoriesVisited[i])))
         productImageURLs.append(
             productIDsDF[productIDsDF['product_id'] == int(productsVisited[i])].iloc[0, 3]

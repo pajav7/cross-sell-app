@@ -22,6 +22,8 @@ layoutrecc = html.Div(id='layoutRecc', children=[
     html.Div(id='moreProductsContent', children=[]),
     html.Button(id='loadMoreButton', children='Načíst další produkty'),
     html.Br(),
+    dcc.Link('Zpět na všechny kategorie', href='/'),
+    html.Br(),
     html.Br(),
     html.Label(children='Manuální zadávání ID produktu'),
     html.Div([
