@@ -16,7 +16,8 @@ from reccModel import *
     Output('productDescription', 'children'),
     [Input({'type': 'reccProdImg', 'productID': ALL}, 'n_clicks'),
      Input('IDSubmitButton', 'n_clicks'),
-     Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks')
+     Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks'),
+     Input('url','pathname')
     ],
     [State({'type': 'reccProdImg', 'productID': ALL}, 'id'),
      State('productIDInput', 'value'),
@@ -24,7 +25,7 @@ from reccModel import *
      State({'type': 'dynamicProdImg', 'productID': ALL}, 'id')
     ]
 )
-def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks,\
+def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks, currentPageURL,\
                            reccProdIDs, productIDfromInput, currentProductID, dynamicProdIDs):
     # zjisti na ktery obrazek se kliklo a posli to dal, posli ID produktu co se ma ted zobrazit
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
@@ -74,7 +75,7 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         # zmeni se tedy vzdy n_clicks, i kdyz uzivatel na nic nekliknul a nic noveho jeste nevidel
         # (protoze se nam jeste nenacetla nova kategorie)
         # proto pri defaultni hodnote z layoutu nic nedelej
-        if selectedProductID != '0':
+        if selectedProductID != '0' and currentCategoryURL != '/':
             # dostan doporuceni k vybranemu produktu
 
             newRecommendedIDs, newRecommendedCategories = \
@@ -92,7 +93,7 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentSessionHistory = get_user_history(inputUsername)
         # vytahni vsechny navstivnene kategorie z historie
         categoriesVisited = set(map(lambda zaznam: zaznam[1], currentSessionHistory))
-        currentSessionRecommendedCategories.update(categoriesVisited)
+        currentSessionRecommendedCategories = categoriesVisited
         if currentCategoryURL != '/':
             newRecommendedIDs, newRecommendedCategories = \
                 check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
@@ -128,14 +129,17 @@ def switch_page(pathname, categoriesRecommendedListAsInput, categoriesRecommende
 
 @app.callback(
     Output('moreProductsContent', 'children'),
-    Input('loadMoreButton', 'n_clicks'),
+    [Input('loadMoreButton', 'n_clicks'),
+     Input('url','pathname')
+    ],
     [State('moreProductsContent', 'children'),
      State('url', 'pathname')]
 )
-def load_more_products(clicks, oldchildren, currentCategoryURL):
-    if (currentCategoryURL != '/'):
-        return oldchildren + generate_products_from_category(5, re.findall(r'\d+', currentCategoryURL)[0])
+def load_more_products(clicks, currentPageURLAsInput, oldchildren, currentPageURLAsState):
+    if (currentPageURLAsState != '/'):
+        return oldchildren + generate_products_from_category(5, re.findall(r'\d+', currentPageURLAsState)[0])
     else:
+        print("clearing extra loaded products")
         return []
 
 
