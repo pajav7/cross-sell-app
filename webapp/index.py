@@ -51,6 +51,7 @@ def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks, curr
     Output('currentUserSessionHistory', 'data'),
     Output('categoriesRecommended', 'data'),
     Output('reccProductsContent', 'children'),
+    Output('historyLink', 'style'),
     [Input('currentProductIDNumber', 'children'),
      Input('loginButton', 'n_clicks'),
     ],
@@ -61,13 +62,15 @@ def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks, curr
 )
 def populate_recommended_and_update_history(selectedProductID, loginClicks, inputUsername,
                                             currentSessionHistory, currentSessionRecommendedCategories,
-                                            currentCategoryURL):
+                                            currentURL):
     # zjisti na co se kliklo
     changed_id = [p['prop_id'] for p in dash.callback_context.triggered][0]
-    if currentCategoryURL != '/':
-        currentCategoryID = re.findall(r'\d+', currentCategoryURL)[0]
+    if currentURL != '/' and currentURL != '/history':
+        currentCategoryID = re.findall(r'\d+', currentURL)[0]
     currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
     newReccProductsComponents = []
+
+    historyLinkStyle = {'display':'none'}
 
     if 'currentProductIDNumber' in changed_id:
         # ugly hack
@@ -76,7 +79,7 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         # zmeni se tedy vzdy n_clicks, i kdyz uzivatel na nic nekliknul a nic noveho jeste nevidel
         # (protoze se nam jeste nenacetla nova kategorie)
         # proto pri defaultni hodnote z layoutu nic nedelej
-        if selectedProductID != '0' and currentCategoryURL != '/':
+        if selectedProductID != '0' and currentURL != '/' and currentURL != '/history':
             # dostan doporuceni k vybranemu produktu
 
             newRecommendedIDs, newRecommendedCategories = \
@@ -88,14 +91,13 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
             currentSessionRecommendedCategories.update(newRecommendedCategories)
             # vygeneruj nam nove komponenty
             newReccProductsComponents = generate_products_recommended(newRecommendedIDs)
-
     elif 'loginButton' in changed_id:
         # vymaz historii soucasne session v momente kdy se novy uzivatel prihlasi
         currentSessionHistory = get_user_history(inputUsername)
         # vytahni vsechny navstivnene kategorie z historie
         categoriesVisited = set(map(lambda zaznam: zaznam[1], currentSessionHistory))
         currentSessionRecommendedCategories = categoriesVisited
-        if currentCategoryURL != '/':
+        if currentURL != '/' and currentURL != '/history':
             newRecommendedIDs, newRecommendedCategories = \
                 check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
             # nech tam ty stare komponenty
@@ -104,28 +106,40 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
     currentSessionRecommendedCategories = list(currentSessionRecommendedCategories)
     print("doporucene kategorie pro uzivatele {} : {}".format(inputUsername,currentSessionRecommendedCategories))
 
+    # zobraz link na historii
+    if inputUsername is not None and inputUsername.isalnum():
+        print("user {} logged in, display link to history".format(inputUsername))
+        historyLinkStyle = {'display': 'flex'}
+
     return currentSessionHistory, \
-           currentSessionRecommendedCategories, newReccProductsComponents
+           currentSessionRecommendedCategories, newReccProductsComponents, \
+           historyLinkStyle
 
 
 @app.callback(
     Output('categoryHeading', 'children'),
     Output('layoutCategories', 'style'),
     Output('layoutRecc', 'style'),
+    Output('layoutHistory', 'style'),
     Output('reccCategoryList', 'children'),
+    Output('historyDisplay', 'children'),
     [Input('url', 'pathname'),
      Input('categoriesRecommended', 'data')
      ],
-    State('categoriesRecommended', 'data')
+    [State('categoriesRecommended', 'data'),
+     State('usernameInput', 'value'),
+     State('currentUserSessionHistory', 'data')]
 )
-def switch_page(pathname, categoriesRecommendedListAsInput, categoriesRecommendedListAsState):
+def switch_page(pathname, categoriesRecommendedListAsInput, categoriesRecommendedListAsState, inputUsername, userHistoryList):
     global RE_catID
     if pathname == '/':
-        return '', {'display': 'block'}, {'display': 'none'}, get_recc_category_links(categoriesRecommendedListAsState)
+        return '', {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, get_recc_category_links(categoriesRecommendedListAsState), ''
+    elif pathname == '/history':
+        return '', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', generate_products_from_history(inputUsername, userHistoryList)
     elif bool(re.search(RE_catID, pathname)):
-        return get_category_name(re.findall(r'\d+', pathname)[0]), {'display': 'none'}, {'display': 'block'}, ''
+        return get_category_name(re.findall(r'\d+', pathname)[0]), {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, '', ''
     else:
-        return 'Čtyřistačtyři', {'display': 'none'}, {'display': 'none'}, layout404
+        return 'Čtyřistačtyři', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', layout404
 
 
 @app.callback(
@@ -137,10 +151,9 @@ def switch_page(pathname, categoriesRecommendedListAsInput, categoriesRecommende
      State('url', 'pathname')]
 )
 def load_more_products(clicks, currentPageURLAsInput, oldchildren, currentPageURLAsState):
-    if (currentPageURLAsState != '/'):
+    if (currentPageURLAsState != '/' and currentPageURLAsState != '/history'):
         return oldchildren + generate_products_from_category(5, re.findall(r'\d+', currentPageURLAsState)[0])
     else:
-        print("clearing extra loaded products")
         return []
 
 

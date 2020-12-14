@@ -1,6 +1,7 @@
 import pandas as pd
 import dash_html_components as html
 import dash_core_components as dcc
+from categoryBrowser import get_category_name
 
 item_names_path = "../DATA/product_category_name_url_sorted.csv"
 item_names = pd.DataFrame()
@@ -103,5 +104,52 @@ def generate_products_from_category(N_products, categoryID):
             html.A(id='dynLink{}'.format(samples.iloc[i, 0]), href=productURLs[i], children=samples.iloc[i, 0]),
             html.Div(id='dynDesc{}', children=productDescriptions[i])
             ]))
+
+    return divchildren
+
+
+def generate_products_from_history(inputUsername, userHistoryList):
+    # vraci Div s novymi produkty (cast "doporucene produkty")
+    global item_names
+
+    historyLength = len(userHistoryList)
+
+    if inputUsername is None or not inputUsername.isalnum() or historyLength == 0:
+        return "Tento uživatel nemá žádnou historii."
+
+    # vytahni co bylo navstiveno, nejnovejsi prvni (proto reverse())
+    productsVisited = list(map(lambda zaznam : zaznam[0], userHistoryList))
+    categoriesVisited = list(map(lambda zaznam : zaznam[1], userHistoryList))
+    productsVisited.reverse()
+    categoriesVisited.reverse()
+
+    # vyrez tabulky
+    productIDsDF = item_names[item_names['product_id'].isin(productsVisited)]
+
+    # priprav seznamy
+    productURLs = []
+    productDescriptions = []
+    productImageURLs = []
+    for i in range(historyLength):
+        productURLs.append("http://mall.cz/id/{}".format(productsVisited[i]))
+        productDescriptions.append("{}, kategorie: {} - {}".format(
+            productIDsDF[productIDsDF['product_id']==int(productsVisited[i])].iloc[0, 2],
+            categoriesVisited[i], get_category_name(categoriesVisited[i])))
+        productImageURLs.append(
+            productIDsDF[productIDsDF['product_id'] == int(productsVisited[i])].iloc[0, 3]
+        )
+
+    # vygeneruj komponenty
+    divchildren = []
+    for i in range(historyLength):
+        divchildren.append(html.Img(
+            id={'type': 'historyProdImg', 'productID': int(productsVisited[i])},
+            alt='obrázek produktu {}'.format(productsVisited[i]),
+            src=productImageURLs[i],
+            style={'height': '200px', 'margin': '10px'}))
+        divchildren.append(html.Div(children=[
+            html.A(id='historyLink{}'.format(productsVisited[i]), href=productURLs[i], children=productsVisited[i]),
+            html.Div(id='historyDesc{}', children=productDescriptions[i])
+        ]))
 
     return divchildren

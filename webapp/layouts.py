@@ -35,6 +35,12 @@ layout404 = html.Div([
     dcc.Link('Zpět na všechny kategorie', href='/')
 ])
 
+layouthistory = html.Div(id='layoutHistory', children=[
+    html.H3(children="Historie uživatele"),
+    dcc.Link('Zpět na všechny kategorie', href='/'),
+    html.Div(id="historyDisplay")
+])
+
 layoutvse = html.Div([
     dcc.Location(id='url', refresh=False),
     html.H2('Cross-Sell App'),
@@ -43,9 +49,12 @@ layoutvse = html.Div([
     html.Div([
         dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
         html.Button(id='loginButton', children='Přihlásit'),
+        dcc.Link(id='historyLink', href= '/history', children='zobrazit historii uživatele', style={'display':'none'})
     ]),
     layoutcategories,
     html.Div(id='currentProductIDNumber', children='0', style={'display': 'none'}),
     html.H3(id='categoryHeading', children='Cross-Sell App'),
-    layoutrecc
+    layoutrecc,
+    layouthistory
 ])
+
