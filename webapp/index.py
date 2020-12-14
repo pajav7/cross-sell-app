@@ -14,6 +14,7 @@ from reccModel import *
     Output('infoLabel', 'children'),
     Output('currentProductIDNumber', 'children'),
     Output('productDescription', 'children'),
+    Output('currentProductImg', 'src'),
     [Input({'type': 'reccProdImg', 'productID': ALL}, 'n_clicks'),
      Input('IDSubmitButton', 'n_clicks'),
      Input({'type': 'dynamicProdImg', 'productID': ALL}, 'n_clicks'),
@@ -42,8 +43,8 @@ def get_next_product_click(reccProdClicks, submitClicks, dynamicProdClicks, curr
         msg = ""
         newProductID = currentProductID
 
-    newDescription = get_product_description(newProductID)
-    return msg, newProductID, newDescription
+    newDescription, newImageURL = get_product_description(newProductID)
+    return msg, newProductID, newDescription, newImageURL
 
 
 @app.callback(

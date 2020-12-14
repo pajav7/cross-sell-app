@@ -6,7 +6,7 @@ pretrained_model = None
 def load_model():
     # priprav predtrenovany model
     global pretrained_model
-    pretrained_model = Word2Vec.load('../w2vAllMin5.model')
+    pretrained_model = Word2Vec.load('../w2v_optimal.model')
     print("recommendation model loaded")
 
 

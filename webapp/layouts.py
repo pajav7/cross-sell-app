@@ -11,7 +11,7 @@ layoutcategories = html.Div(id='layoutCategories', children=[
 layoutrecc = html.Div(id='layoutRecc', children=[
     dcc.Link('Zpět na všechny kategorie', href='/'),
     html.Br(),
-    html.Img(id='currentProductImg', alt='obrazek vybraneho produktu', style={'height':'500px', 'width':'500px'}),
+    html.Img(id='currentProductImg', alt='obrazek vybraneho produktu', style={'height':'400px'}),
     html.Div(id='productDescription', children='aaaa'),
     html.Br(),
     html.H4('Doporučené produkty'),

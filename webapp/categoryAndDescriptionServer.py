@@ -2,7 +2,7 @@ import pandas as pd
 import dash_html_components as html
 import dash_core_components as dcc
 
-item_names_path = "../DATA/product_category_name_sorted.csv"
+item_names_path = "../DATA/product_category_name_url_sorted.csv"
 item_names = pd.DataFrame()
 
 
@@ -18,10 +18,12 @@ def get_product_description(productID):
     # vytahni z tabulky popis prave zobrazeneho produktu
     global item_names
     try:
-        product_description = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 2]
+        productDescription = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 2]
+        productImageURL = item_names.loc[item_names['product_id'] == int(productID)].iloc[0, 3]
     except (IndexError, TypeError) as e:
-        product_description = "K tomuto produktu neexistuje popis."
-    return product_description
+        productDescription = "K tomuto produktu neexistuje popis."
+        productImageURL = ''
+    return productDescription, productImageURL
 
 
 def check_product_category(productIDs, categoryID):
@@ -68,7 +70,8 @@ def generate_products_recommended(productIDs):
         divchildren.append(html.Img(
             id={'type': 'reccProdImg', 'productID': int(productIDsDF.iloc[i, 0])},
             alt='obrázek produktu {}'.format(productIDsDF.iloc[i, 0]),
-            style={'height': '200px', 'width': '200px', 'margin': '10px'}))
+            src=productIDsDF.iloc[i,3],
+            style={'height': '200px', 'margin': '10px'}))
         divchildren.append(html.Div(children=[
             html.A(id='reccLink{}'.format(productIDsDF.iloc[i, 0]), href=productURLs[i], children=productIDsDF.iloc[i, 0]),
             html.Div(id='reccDesc{}', children=productDescriptions[i])
@@ -92,8 +95,10 @@ def generate_products_from_category(N_products, categoryID):
     divchildren = []
     for i in range(N_products):
         divchildren.append(html.Img(
-            id={'type':'dynamicProdImg', 'productID':int(samples.iloc[i, 0])}, alt='obrázek produktu {}'.format(samples.iloc[i, 0]),
-                 style={'height': '200px', 'width': '200px', 'margin': '10px'}))
+            id={'type':'dynamicProdImg', 'productID':int(samples.iloc[i, 0])},
+            alt='obrázek produktu {}'.format(samples.iloc[i, 0]),
+            src=samples.iloc[i, 3],
+            style={'height': '200px', 'margin': '10px'}))
         divchildren.append(html.Div(children=[
             html.A(id='dynLink{}'.format(samples.iloc[i, 0]), href=productURLs[i], children=samples.iloc[i, 0]),
             html.Div(id='dynDesc{}', children=productDescriptions[i])
