@@ -3,17 +3,13 @@ import dash_html_components as html
 import pandas as pd
 
 category_names_path = "../DATA/category/name_key.csv"
-category_translations_path = "../DATA/category/reduced_category_key.csv"
-
 category_names = pd.DataFrame()
-category_translations = pd.DataFrame()
 number_of_categories = 1
 
 
 def load_categories():
-    global category_names, category_translations
+    global category_names
     category_names = pd.read_csv(category_names_path)
-    category_translations = pd.read_csv(category_translations_path)
 
 
 def init_all_category_layout():
@@ -34,20 +30,17 @@ def init_all_category_layout():
 def get_recc_category_links(reccCategoryIDs):
     # vygeneruj odkazy na doporucene kategorie
     global category_names
-    reccCategoryLayout = []
-    reccCategoryNames = category_names[category_names["cat_ID"].isin(reccCategoryIDs)]["cat_name"]
+    reccCategoryLayoutChildren = []
+    #reccCategoryNames = category_names[category_names["cat_ID"].isin(reccCategoryIDs)]["cat_name"]
     for i in range(len(reccCategoryIDs)):
-        reccCategoryLayout.append(
-            dcc.Link(id="linkCat_{}".format(reccCategoryIDs[i]), children=reccCategoryNames.iloc[i],
+        reccCategoryLayoutChildren.append(
+            dcc.Link(id="linkReccCat_{}".format(reccCategoryIDs[i]),
+                     children=category_names[category_names['cat_ID'] == int(reccCategoryIDs[i])].iloc[0, 1],
                      href="/products/{}".format(reccCategoryIDs[i])))
-        reccCategoryLayout.append(html.Br())
+        reccCategoryLayoutChildren.append(html.Br())
 
-    return html.Div(children=reccCategoryLayout)
+    return html.Div(children=reccCategoryLayoutChildren)
 
 
-def translate_categories(oldCategoryIDsList):
-    # prelozi stare ID na nove
-    newCatIDs = category_translations[category_translations["categories"].isin(oldCategoryIDsList)]["cat_ID"].tolist()
-    newCatIDs = list(map(int, newCatIDs))
-    return newCatIDs
-
+def get_category_name(catID):
+    return category_names[category_names['cat_ID'] == int(catID)].iloc[0, 1]
