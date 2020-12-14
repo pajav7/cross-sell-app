@@ -14,7 +14,7 @@ def load_histories(path = historypath):
         with open(path) as f:
             history = json.load(f)
     except FileNotFoundError:
-        history = []
+        history = {}
     print(history)
 
 

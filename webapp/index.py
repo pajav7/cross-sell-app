@@ -70,20 +70,18 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
     currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
     newReccProductsComponents = []
 
-    historyLinkStyle = {'display':'none'}
+    # vytahni posledni navstiveny produkt pro doporuceni
+    if len(currentSessionHistory) != 0:
+        IDSforRecommendation = currentSessionHistory[-1][0]
+    else:
+        IDSforRecommendation = selectedProductID
 
     if 'currentProductIDNumber' in changed_id:
-        # ugly hack
-        # v momente kdy vlezu do kategorie se tento callback spusti
-        # (zrejme kvuli tomu ze se znovu generuji vsechny ty komponenty)
-        # zmeni se tedy vzdy n_clicks, i kdyz uzivatel na nic nekliknul a nic noveho jeste nevidel
-        # (protoze se nam jeste nenacetla nova kategorie)
-        # proto pri defaultni hodnote z layoutu nic nedelej
         if selectedProductID != '0' and currentURL != '/' and currentURL != '/history':
             # dostan doporuceni k vybranemu produktu
 
             newRecommendedIDs, newRecommendedCategories = \
-                check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
 
             currentSessionHistory.append([str(selectedProductID), str(currentCategoryID)])
             save_history(inputUsername, currentSessionHistory)
@@ -99,17 +97,19 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentSessionRecommendedCategories = categoriesVisited
         if currentURL != '/' and currentURL != '/history':
             newRecommendedIDs, newRecommendedCategories = \
-                check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
             # nech tam ty stare komponenty
             newReccProductsComponents = generate_products_recommended(newRecommendedIDs)
 
     currentSessionRecommendedCategories = list(currentSessionRecommendedCategories)
     print("doporucene kategorie pro uzivatele {} : {}".format(inputUsername,currentSessionRecommendedCategories))
 
-    # zobraz link na historii
+    # zobraz link na historii?
     if inputUsername is not None and inputUsername.isalnum():
         print("user {} logged in, display link to history".format(inputUsername))
         historyLinkStyle = {'display': 'flex'}
+    else:
+        historyLinkStyle = {'display': 'none'}
 
     return currentSessionHistory, \
            currentSessionRecommendedCategories, newReccProductsComponents, \
