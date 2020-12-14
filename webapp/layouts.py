@@ -45,14 +45,22 @@ layouthistory = html.Div(id='layoutHistory', children=[
 
 layoutvse = html.Div([
     dcc.Location(id='url', refresh=False),
-    html.H2('Cross-Sell App'),
+    html.H1('Cross-Sell App', 
+		style={'textAlign': 'center', 
+			'color': '#026670', 
+			'height': '80px', 
+			'font-size': '4em',
+			'margin-top': '0px',
+			'vertical-align': 'middle'}),
     dcc.Store(id='currentUserSessionHistory', storage_type='memory', data=[]),
     dcc.Store(id='categoriesRecommended', storage_type='memory', data=[]),
     html.Div([
-        dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
-        html.Button(id='loginButton', children='Přihlásit'),
-        dcc.Link(id='historyLink', href= '/history', children='zobrazit historii uživatele', style={'display':'none'})
-    ]),
+	html.H4("Přihlášení:", style={'margin-left':'0px', 'margin-bottom':'5px'}),
+	html.Div([
+        	dcc.Input(id='usernameInput', placeholder='Uživatelské jméno'),
+        	html.Button(id='loginButton', children='Přihlásit',style={'margin-left':'1px','backgroundColor': '#026670', 'color':'#FEF9C7'}),
+        	dcc.Link(id='historyLink', href= '/history', children='zobrazit historii uživatele', style={'display':'none'}),]), 
+    ], style={'float':'right', 'margin-right':'20px'}),
     layoutcategories,
     html.Div(id='currentProductIDNumber', children='0', style={'display': 'none'}),
     html.H3(id='categoryHeading', children='Cross-Sell App'),

@@ -1,3 +1,7 @@
 /.idea
 /webapp/.idea/
 *.pyc
+w2v_optimal.model
+w2v_optimal.model.trainables.syn1neg.npy
+w2v_optimal.model.wv.vectors.npy
+
