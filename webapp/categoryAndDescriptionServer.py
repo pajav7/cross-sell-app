@@ -3,7 +3,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from categoryBrowser import get_category_name
 
-item_names_path = "../DATA/product_category_name_url_sorted.csv"
+item_names_path = "../DATA/product_category_name_url_optimal_model_sorted.csv"
 item_names = pd.DataFrame()
 
 
