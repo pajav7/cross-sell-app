@@ -13,7 +13,6 @@ def load_model():
 def get_product_recc(productIDS, numberOfReccs=5):
     # doporuc neco k tomuto produktu (nebo seznamu produktu)
     global pretrained_model
-    print(productIDS)
     try:
         if isinstance(productIDS, list):
             reccsWithSimilarities = pretrained_model.wv.most_similar(positive=productIDS, topn=numberOfReccs) #topn = 5?
