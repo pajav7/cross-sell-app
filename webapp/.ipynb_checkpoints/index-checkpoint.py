@@ -69,10 +69,12 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentCategoryID = re.findall(r'\d+', currentURL)[0]
     currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
     newReccProductsComponents = []
+    IDSforRecommendation = []
 
-    # vytahni posledni navstiveny produkt pro doporuceni
+    # vytahni posledni 3 navstivene produkty pro doporuceni
     if len(currentSessionHistory) != 0:
-        IDSforRecommendation = currentSessionHistory[-1][0]
+        for i in range(min(len(currentSessionHistory), 3)):
+            IDSforRecommendation.append(currentSessionHistory[-i-1][0])
     else:
         IDSforRecommendation = selectedProductID
 
@@ -82,8 +84,8 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
 
             newRecommendedIDs, newRecommendedCategories = \
                 check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
-
-            currentSessionHistory.append([str(selectedProductID), str(currentCategoryID)])
+            if len(currentSessionHistory) == 0 or selectedProductID not in [x[0] for x in currentSessionHistory]:
+            	currentSessionHistory.append([str(selectedProductID), str(currentCategoryID)])
             save_history(inputUsername, currentSessionHistory)
             # pridej nove doporucene kategorie
             currentSessionRecommendedCategories.update(newRecommendedCategories)
@@ -99,7 +101,15 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
             newRecommendedIDs, newRecommendedCategories = \
                 check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
             # nech tam ty stare komponenty
+        elif currentURL == '/' and len(currentSessionHistory) > 0:
+            IDSforRecommendation = []
+            for i in range(min(len(currentSessionHistory),3)):
+                IDSforRecommendation.append(currentSessionHistory[-i-1][0])
+            newRecommendedIDs, newRecommendedCategories = \
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentSessionHistory[0][1])
+            # nech tam ty stare komponenty
             newReccProductsComponents = generate_products_recommended(newRecommendedIDs)
+            currentSessionRecommendedCategories.update(newRecommendedCategories)
 
     currentSessionRecommendedCategories = list(currentSessionRecommendedCategories)
     print("doporucene kategorie pro uzivatele {} : {}".format(inputUsername,currentSessionRecommendedCategories))
