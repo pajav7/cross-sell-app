@@ -69,10 +69,12 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentCategoryID = re.findall(r'\d+', currentURL)[0]
     currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
     newReccProductsComponents = []
+    IDSforRecommendation = []
 
-    # vytahni posledni navstiveny produkt pro doporuceni
+    # vytahni posledni 3 navstivene produkty pro doporuceni
     if len(currentSessionHistory) != 0:
-        IDSforRecommendation = currentSessionHistory[-1][0]
+        for i in range(min(len(currentSessionHistory), 3)):
+            IDSforRecommendation.append(currentSessionHistory[-i-1][0])
     else:
         IDSforRecommendation = selectedProductID
 
