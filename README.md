@@ -1,6 +1,6 @@
 # Cross-sell application
 
-This application was created as a university project whose aim is to simulate a real life business project.
+This application was created as a university project which aims to simulate a real life business assignement concerning on-line shops.
 
 ## What does it do
 Our application is an on-line shop, which in addition recommends various categories and new products for each user based on his/hers particular history. 
