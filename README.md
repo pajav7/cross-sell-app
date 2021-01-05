@@ -23,7 +23,5 @@ The web application uses Dash in Python.
 Unfortunately his application does not run on a webside since the trained recommendation model and the data required for the application are too big. 
 However you can see few pictures of the application in the folder: pictures.
 
-There is a picture of the main page, adding a new user, displaying users history and recommending 3 new categories and new products on the main page. The recommended categories are the first paragraph on the left, followed by list of all categories. User sign in and recommended products on the main page are on the right.
-
 Most of the text in the application is in CZECH.
 
