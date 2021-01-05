@@ -15,10 +15,11 @@ After you have gone back to the main page new categories and 5 new products from
 
 ## How does it work
 
-The application returns recommendations based on history of views using Word2vec recommendation engine. The web application uses Dash in Python.
+The application returns recommendations based on history of views using Word2vec recommendation engine. 
+The web application uses Dash in Python.
 
-## How can YOU try it
+## How can YOU try it?
 
 Unfortunately his application does not run on a webside since the trained recommendation model and the data required for the application are too big. 
-However you can see the few pictures of the application in the folder: pictures.
+However you can see few pictures of the application in the folder: pictures.
 
