@@ -41,6 +41,5 @@ def get_recc_category_links(reccCategoryIDs):
 
     return html.Div(children=reccCategoryLayoutChildren)
 
-
 def get_category_name(catID):
     return category_names[category_names['cat_ID'] == int(catID)].iloc[0, 1]

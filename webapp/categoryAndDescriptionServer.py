@@ -3,7 +3,7 @@ import dash_html_components as html
 import dash_core_components as dcc
 from categoryBrowser import get_category_name
 
-item_names_path = "../DATA/product_category_name_url_sorted.csv"
+item_names_path = "../DATA/product_category_name_url_optimal_model_sorted.csv"
 item_names = pd.DataFrame()
 
 
@@ -54,6 +54,38 @@ def generate_products_recommended(productIDs):
 
     if(len(productIDs) == 0):
         return "K tomuto produktu/historii bohužel nemáme doporučení z této kategorie."
+
+    productIDsDF = item_names[item_names['product_id'].isin(productIDs)]
+
+    # priprav seznamy
+    numberOfRecommendations = min(len(productIDs), 5)
+    productURLs = []
+    productDescriptions = []
+    for i in range(numberOfRecommendations):
+        productURLs.append("http://mall.cz/id/{}".format(productIDsDF.iloc[i, 0]))
+        productDescriptions.append(productIDsDF.iloc[i, 2])
+
+    # vygeneruj komponenty
+    divchildren = []
+    for i in range(numberOfRecommendations):
+        divchildren.append(html.Img(
+            id={'type': 'reccProdImg', 'productID': int(productIDsDF.iloc[i, 0])},
+            alt='obrázek produktu {}'.format(productIDsDF.iloc[i, 0]),
+            src=productIDsDF.iloc[i,3],
+            style={'height': '200px', 'margin': '10px'}))
+        divchildren.append(html.Div(children=[
+            html.A(id='reccLink{}'.format(productIDsDF.iloc[i, 0]), href=productURLs[i], children=productIDsDF.iloc[i, 0]),
+            html.Div(id='reccDesc{}', children=productDescriptions[i])
+        ]))
+
+    return divchildren
+
+def generate_products_recommended_All(productIDs):
+    # vraci Div s novymi produkty (cast "doporucene produkty")
+    global item_names
+
+    if(len(productIDs) == 0):
+        return ""
 
     productIDsDF = item_names[item_names['product_id'].isin(productIDs)]
 
@@ -133,7 +165,7 @@ def generate_products_from_history(inputUsername, userHistoryList):
     for i in range(historyLength):
         productURLs.append("http://mall.cz/id/{}".format(productsVisited[i]))
         productDescriptions.append("{}, kategorie: {} - {}".format(
-            productIDsDF[productIDsDF['product_id']==int(productsVisited[i])].iloc[0, 2],
+            productIDsDF[productIDsDF['product_id'] == int(productsVisited[i])].iloc[0, 2],
             categoriesVisited[i], get_category_name(categoriesVisited[i])))
         productImageURLs.append(
             productIDsDF[productIDsDF['product_id'] == int(productsVisited[i])].iloc[0, 3]

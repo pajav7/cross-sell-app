@@ -69,23 +69,23 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentCategoryID = re.findall(r'\d+', currentURL)[0]
     currentSessionRecommendedCategories = set(currentSessionRecommendedCategories)
     newReccProductsComponents = []
+    IDSforRecommendation = []
 
-    historyLinkStyle = {'display':'none'}
+    # vytahni posledni 3 navstivene produkty pro doporuceni
+    if len(currentSessionHistory) != 0:
+        for i in range(min(len(currentSessionHistory), 3)):
+            IDSforRecommendation.append(currentSessionHistory[-i-1][0])
+    else:
+        IDSforRecommendation = selectedProductID
 
     if 'currentProductIDNumber' in changed_id:
-        # ugly hack
-        # v momente kdy vlezu do kategorie se tento callback spusti
-        # (zrejme kvuli tomu ze se znovu generuji vsechny ty komponenty)
-        # zmeni se tedy vzdy n_clicks, i kdyz uzivatel na nic nekliknul a nic noveho jeste nevidel
-        # (protoze se nam jeste nenacetla nova kategorie)
-        # proto pri defaultni hodnote z layoutu nic nedelej
         if selectedProductID != '0' and currentURL != '/' and currentURL != '/history':
             # dostan doporuceni k vybranemu produktu
 
             newRecommendedIDs, newRecommendedCategories = \
-                check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
-
-            currentSessionHistory.append([str(selectedProductID), str(currentCategoryID)])
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
+            if len(currentSessionHistory) == 0 or selectedProductID not in [x[0] for x in currentSessionHistory]:
+            	currentSessionHistory.append([str(selectedProductID), str(currentCategoryID)])
             save_history(inputUsername, currentSessionHistory)
             # pridej nove doporucene kategorie
             currentSessionRecommendedCategories.update(newRecommendedCategories)
@@ -99,17 +99,27 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
         currentSessionRecommendedCategories = categoriesVisited
         if currentURL != '/' and currentURL != '/history':
             newRecommendedIDs, newRecommendedCategories = \
-                check_product_category(get_product_recc(selectedProductID, numberOfReccs=10), currentCategoryID)
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentCategoryID)
+            # nech tam ty stare komponenty
+        elif currentURL == '/' and len(currentSessionHistory) > 0:
+            IDSforRecommendation = []
+            for i in range(min(len(currentSessionHistory),3)):
+                IDSforRecommendation.append(currentSessionHistory[-i-1][0])
+            newRecommendedIDs, newRecommendedCategories = \
+                check_product_category(get_product_recc(IDSforRecommendation, numberOfReccs=10), currentSessionHistory[0][1])
             # nech tam ty stare komponenty
             newReccProductsComponents = generate_products_recommended(newRecommendedIDs)
+            currentSessionRecommendedCategories.update(newRecommendedCategories)
 
     currentSessionRecommendedCategories = list(currentSessionRecommendedCategories)
     print("doporucene kategorie pro uzivatele {} : {}".format(inputUsername,currentSessionRecommendedCategories))
 
-    # zobraz link na historii
+    # zobraz link na historii?
     if inputUsername is not None and inputUsername.isalnum():
         print("user {} logged in, display link to history".format(inputUsername))
         historyLinkStyle = {'display': 'flex'}
+    else:
+        historyLinkStyle = {'display': 'none'}
 
     return currentSessionHistory, \
            currentSessionRecommendedCategories, newReccProductsComponents, \
@@ -123,6 +133,8 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
     Output('layoutHistory', 'style'),
     Output('reccCategoryList', 'children'),
     Output('historyDisplay', 'children'),
+    Output('layoutProductsAll', 'style'),
+    Output('productsRecAll', 'children'),
     [Input('url', 'pathname'),
      Input('categoriesRecommended', 'data')
      ],
@@ -133,13 +145,14 @@ def populate_recommended_and_update_history(selectedProductID, loginClicks, inpu
 def switch_page(pathname, categoriesRecommendedListAsInput, categoriesRecommendedListAsState, inputUsername, userHistoryList):
     global RE_catID
     if pathname == '/':
-        return '', {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, get_recc_category_links(categoriesRecommendedListAsState), ''
+        recommendToIDS = [x[0] for x in userHistoryList]
+        return '', {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, get_recc_category_links(categoriesRecommendedListAsState), '',{'display': 'block'}, generate_products_recommended_All(get_recc_products_all(recommendToIDS))
     elif pathname == '/history':
-        return '', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', generate_products_from_history(inputUsername, userHistoryList)
+        return '', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', generate_products_from_history(inputUsername, userHistoryList), {'display': 'none'}, ''
     elif bool(re.search(RE_catID, pathname)):
-        return get_category_name(re.findall(r'\d+', pathname)[0]), {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, '', ''
+        return get_category_name(re.findall(r'\d+', pathname)[0]), {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, '', '', {'display': 'none'}, ''
     else:
-        return 'Čtyřistačtyři', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', layout404
+        return 'Čtyřistačtyři', {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, '', layout404, {'display': 'none'}, ''
 
 
 @app.callback(
