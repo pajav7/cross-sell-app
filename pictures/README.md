@@ -10,7 +10,7 @@ Description of pictures in this folder:
 
 * recommendation_in_category.png - 5 products from this category recommended for selected product
 
-* other_products_in_category.png - all other products from this category are selected in random order
+* other_products_in_category.png - all other products from this category are displayed in random order
 
 * new_recommended_apple_iphone.png - main site where are 3 recommended categories in the top left corner, all other categories below and 5 recommended products from all categories on the right
 
