@@ -25,6 +25,13 @@ After you have gone back to the main page new categories and 5 new products from
 Unfortunately his application does not run on a webside since the trained recommendation model and the data required for the application are too big. 
 This repository does not contain a trained recommendation model either since the files are bigger than 100MB.
 
-However you can see few pictures of the application in the folder: pictures.
+However you can see few pictures of the application in the folder: `pictures`.
 
+If you want to run this application withou recommendation model, the required packages in Python 3 are listed in the file requirements.txt
+You can use the following commands in Windows using pip:
 
+`$ pip3 install -r requirements.txt`
+
+and then run the application in the folder `webapp` using command:
+
+`$ py index.py`
